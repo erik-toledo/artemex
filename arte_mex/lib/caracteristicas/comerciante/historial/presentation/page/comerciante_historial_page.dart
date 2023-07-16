@@ -20,7 +20,10 @@ class _ComercianteHistorialPageState extends State<ComercianteHistorialPage> {
       body: Column(
         children: [
           ReutilizableWidgetAppbar(
-              ancho: ancho, alto: alto, titulo: 'Historial de ventas'),
+              ancho: ancho,
+              alto: alto,
+              titulo: 'Historial de ventas',
+              regresar: true),
           SizedBox(
             width: ancho,
             height: alto / 1.2,

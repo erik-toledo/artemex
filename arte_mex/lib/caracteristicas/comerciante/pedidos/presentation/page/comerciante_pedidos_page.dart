@@ -18,7 +18,8 @@ class _ComerciantePedidosPageState extends State<ComerciantePedidosPage> {
     return Scaffold(
       body: Column(
         children: [
-          ReutilizableWidgetAppbar(ancho: ancho, alto: alto, titulo: 'Pedidos'),
+          ReutilizableWidgetAppbar(
+              ancho: ancho, alto: alto, titulo: 'Pedidos', regresar: true),
           SizedBox(
             width: ancho,
             height: alto / 1.2,

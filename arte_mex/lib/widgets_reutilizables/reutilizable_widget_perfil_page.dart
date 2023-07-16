@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class ReutilizableWidgetPerfil extends StatefulWidget {
   final List<String> titulos;
   final List<Widget> vistas;
+  final bool usuario;
   const ReutilizableWidgetPerfil(
-      {super.key, required this.titulos, required this.vistas});
+      {super.key,
+      required this.titulos,
+      required this.vistas,
+      required this.usuario});
 
   @override
   State<ReutilizableWidgetPerfil> createState() =>
@@ -13,6 +18,8 @@ class ReutilizableWidgetPerfil extends StatefulWidget {
 }
 
 class _ReutilizableWidgetPerfilState extends State<ReutilizableWidgetPerfil> {
+  final defecto_imagen_comerciante = 'assets/local_imagenes/tienda_perfil.png';
+  final defecto_imagen_comprador = 'assets/local_imagenes/perfil.jpg';
   @override
   Widget build(BuildContext context) {
     final ancho = MediaQuery.of(context).size.width;
@@ -22,62 +29,50 @@ class _ReutilizableWidgetPerfilState extends State<ReutilizableWidgetPerfil> {
       body: SafeArea(
         child: Column(
           children: [
-            SizedBox(
-              width: ancho,
-              height: alto / 2.45,
-              child: Column(
-                children: [
-                  Container(
-                    alignment: Alignment.bottomCenter,
-                    height: alto / 3.5,
-                    child: Container(
-                      decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                          boxShadow: <BoxShadow>[
-                            BoxShadow(
-                              offset: Offset(0, 4),
-                              blurRadius: 4,
-                              color: Color.fromRGBO(0, 0, 0, .250),
-                            )
-                          ]),
-                      child: const CircleAvatar(
-                        radius: 80,
-                        backgroundImage:
-                            AssetImage('assets/local_imagenes/perfil.jpg'),
-                      ),
+            Column(
+              children: [
+                Container(
+                  alignment: Alignment.bottomCenter,
+                  height: alto / 3.5,
+                  child: Container(
+                    decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        boxShadow: <BoxShadow>[
+                          BoxShadow(
+                            offset: Offset(0, 4),
+                            blurRadius: 4,
+                            color: Color.fromRGBO(0, 0, 0, .250),
+                          )
+                        ]),
+                    child: CircleAvatar(
+                      radius: 80,
+                      backgroundImage: AssetImage((widget.usuario)
+                          ? defecto_imagen_comerciante
+                          : defecto_imagen_comprador),
+                      backgroundColor: const Color(0xff617946),
                     ),
                   ),
-                  SizedBox(
-                    width: ancho / 1.1,
-                    height: alto / 13,
-                    child: Text(
-                      'Kevin Debruyna',
-                      style: GoogleFonts.montserrat(
-                          fontSize: 30,
-                          fontWeight: FontWeight.w600,
-                          shadows: <BoxShadow>[
-                            const BoxShadow(
-                                offset: Offset(0, 4),
-                                blurRadius: 4,
-                                color: Color.fromRGBO(0, 0, 0, .250))
-                          ]),
-                    ),
+                ),
+                (widget.usuario)
+                    ? nombreUsuarioComerciante(ancho, alto)
+                    : nombreUsuarioComprador(ancho, alto),
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: SizedBox(
+                width: ancho / 1.55,
+                height: alto / 25,
+                child: Text(
+                  'kdbruna@gmail.com',
+                  style: GoogleFonts.montserrat(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                    decoration: TextDecoration.underline,
+                    decorationColor: const Color.fromRGBO(130, 130, 130, 1),
+                    color: const Color.fromRGBO(130, 130, 130, 1),
                   ),
-                  SizedBox(
-                    width: ancho / 1.55,
-                    height: alto / 25,
-                    child: Text(
-                      'kdbruna@gmail.com',
-                      style: GoogleFonts.montserrat(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 16,
-                        decoration: TextDecoration.underline,
-                        decorationColor: const Color.fromRGBO(130, 130, 130, 1),
-                        color: const Color.fromRGBO(130, 130, 130, 1),
-                      ),
-                    ),
-                  )
-                ],
+                ),
               ),
             ),
             SizedBox(
@@ -117,7 +112,9 @@ class _ReutilizableWidgetPerfilState extends State<ReutilizableWidgetPerfil> {
                             height: alto / 10,
                             child: IconButton(
                               onPressed: () {
-                                Route route = MaterialPageRoute(builder: (context) => widget.vistas[0],);
+                                Route route = MaterialPageRoute(
+                                  builder: (context) => widget.vistas[0],
+                                );
                                 Navigator.push(context, route);
                               },
                               icon: const Icon(
@@ -276,6 +273,62 @@ class _ReutilizableWidgetPerfilState extends State<ReutilizableWidgetPerfil> {
             )
           ],
         ),
+      ),
+    );
+  }
+
+  SizedBox nombreUsuarioComerciante(double ancho, double alto) {
+    return SizedBox(
+      width: ancho / 1.1,
+      height: alto / 13,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SizedBox(
+            width: ancho / 1.4,
+            child: Text(
+              'Artesanías Mx',
+              overflow: TextOverflow.ellipsis,
+              style: GoogleFonts.montserrat(
+                  fontSize: 30,
+                  fontWeight: FontWeight.w600,
+                  shadows: <BoxShadow>[
+                    const BoxShadow(
+                        offset: Offset(0, 4),
+                        blurRadius: 4,
+                        color: Color.fromRGBO(0, 0, 0, .250))
+                  ]),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: SvgPicture.asset(
+              'assets/imagenes_iconos_card/verificado.svg',
+              width: 20,
+              colorFilter: const ColorFilter.mode(
+                  Color.fromRGBO(29, 155, 240, 1), BlendMode.srcIn),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  SizedBox nombreUsuarioComprador(double ancho, double alto) {
+    return SizedBox(
+      width: ancho / 1.1,
+      height: alto / 13,
+      child: Text(
+        'Kevin Debruyna',
+        style: GoogleFonts.montserrat(
+            fontSize: 30,
+            fontWeight: FontWeight.w600,
+            shadows: <BoxShadow>[
+              const BoxShadow(
+                  offset: Offset(0, 4),
+                  blurRadius: 4,
+                  color: Color.fromRGBO(0, 0, 0, .250))
+            ]),
       ),
     );
   }

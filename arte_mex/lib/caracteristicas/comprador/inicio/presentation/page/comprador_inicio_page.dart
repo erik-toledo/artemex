@@ -1,18 +1,19 @@
 // ignore_for_file: deprecated_member_use
 
-import 'package:arte_mex/caracteristicas/comprador/inicio/presentation/page/card_producto_item.dart';
+import 'package:arte_mex/caracteristicas/comprador/inicio/presentation/page/widgets/card_producto_item.dart';
+import 'package:arte_mex/caracteristicas/comprador/inicio/presentation/page/comprador_inicio_estado_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class InicioPage extends StatefulWidget {
-  const InicioPage({super.key});
+class CompradorInicioPage extends StatefulWidget {
+  const CompradorInicioPage({super.key});
 
   @override
-  State<InicioPage> createState() => _InicioPageState();
+  State<CompradorInicioPage> createState() => _CompradorInicioPageState();
 }
 
-class _InicioPageState extends State<InicioPage> {
+class _CompradorInicioPageState extends State<CompradorInicioPage> {
   @override
   Widget build(BuildContext context) {
     final ancho = MediaQuery.of(context).size.width;
@@ -109,23 +110,62 @@ class _InicioPageState extends State<InicioPage> {
                 children: [
                   SizedBox(
                     height: alto / 8,
-                    child: const Row(
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        CircleAvatar(
-                          backgroundImage:
-                              AssetImage('assets/imagenes_estados/chiapas.jpg'),
-                          radius: 40,
+                        InkWell(
+                          onTap: () {
+                            Route route = MaterialPageRoute(
+                              builder: (context) =>
+                                  const CompradorInicioEstadoPage(
+                                tituloEstado: "Chiapas",
+                                colorLetraEstado: Color(0xff617946),
+                              ),
+                            );
+                            Navigator.push(context, route);
+                          },
+                          borderRadius: BorderRadius.circular(40),
+                          child: const CircleAvatar(
+                            backgroundImage: AssetImage(
+                                'assets/imagenes_estados/chiapas.jpg'),
+                            radius: 40,
+                          ),
                         ),
-                        CircleAvatar(
-                          backgroundImage:
-                              AssetImage('assets/imagenes_estados/oaxaca.jpg'),
-                          radius: 40,
+                        InkWell(
+                          onTap: () {
+                            Route route = MaterialPageRoute(
+                              builder: (context) =>
+                                  const CompradorInicioEstadoPage(
+                                tituloEstado: "Oaxaca",
+                                colorLetraEstado: Color(0xffCE3177),
+                              ),
+                            );
+                            Navigator.push(context, route);
+                          },
+                          borderRadius: BorderRadius.circular(40),
+                          child: const CircleAvatar(
+                            backgroundImage: AssetImage(
+                                'assets/imagenes_estados/oaxaca.jpg'),
+                            radius: 40,
+                          ),
                         ),
-                        CircleAvatar(
-                          backgroundImage:
-                              AssetImage('assets/imagenes_estados/yucatan.jpg'),
-                          radius: 40,
+                        InkWell(
+                          onTap: () {
+                            Route route = MaterialPageRoute(
+                              builder: (context) =>
+                                  const CompradorInicioEstadoPage(
+                                tituloEstado: "Yucatan",
+                                colorLetraEstado: Color(0xffEDA812),
+                              ),
+                            );
+                            Navigator.push(context, route);
+                          },
+                          borderRadius: BorderRadius.circular(40),
+                          child: const CircleAvatar(
+                            backgroundImage: AssetImage(
+                                'assets/imagenes_estados/yucatan.jpg'),
+                            radius: 40,
+                          ),
                         )
                       ],
                     ),
@@ -176,21 +216,34 @@ class _InicioPageState extends State<InicioPage> {
               ),
             ),
           ),
+          SizedBox(height: alto / 50),
           Padding(
-            padding: const EdgeInsets.only(top: 40),
-            child: Column(
+            padding: const EdgeInsets.symmetric(horizontal: 15),
+            child: Row(
               children: [
-                SizedBox(
-                    width: ancho / 1.1,
-                    height: alto / 2.3,
-                    child: ListView.builder(
-                      itemCount: 4,
-                      itemBuilder: (context, index) {
-                        return CardProductoItem(ancho: ancho, alto: alto);
-                      },
-                    )),
+                Text(
+                  'Algunos productos',
+                  style: GoogleFonts.montserrat(
+                    fontWeight: FontWeight.w600,
+                    color: Colors.purple,
+                    fontSize: 12,
+                  ),
+                ),
               ],
             ),
+          ),
+          Column(
+            children: [
+              SizedBox(
+                  width: ancho / 1.1,
+                  height: alto / 2.3,
+                  child: ListView.builder(
+                    itemCount: 4,
+                    itemBuilder: (context, index) {
+                      return CardProductoItem(ancho: ancho, alto: alto);
+                    },
+                  )),
+            ],
           )
         ],
       ),

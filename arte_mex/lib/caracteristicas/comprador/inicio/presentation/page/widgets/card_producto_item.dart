@@ -36,13 +36,12 @@ class _CardProductoItemState extends State<CardProductoItem> {
                     width: widget.ancho / 2.3,
                     height: widget.alto / 7,
                     decoration: BoxDecoration(
-                      color: Colors.black,
                       borderRadius: BorderRadius.circular(5),
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(5),
                       child: Image.asset(
-                        'assets/productos/zapatilla.jpg',
+                        'assets/local_imagenes/zapatilla.jpg',
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -196,13 +195,12 @@ class _CardProductoItemState extends State<CardProductoItem> {
                     width: widget.ancho / 2.3,
                     height: widget.alto / 7,
                     decoration: BoxDecoration(
-                      color: Colors.black,
                       borderRadius: BorderRadius.circular(5),
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(5),
                       child: Image.asset(
-                        'assets/productos/zapatilla.jpg',
+                        'assets/local_imagenes/zapatilla.jpg',
                         fit: BoxFit.cover,
                       ),
                     ),

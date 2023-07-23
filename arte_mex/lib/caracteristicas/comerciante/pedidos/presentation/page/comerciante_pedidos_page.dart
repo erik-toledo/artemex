@@ -16,10 +16,20 @@ class _ComerciantePedidosPageState extends State<ComerciantePedidosPage> {
     final ancho = MediaQuery.of(context).size.width;
     final alto = MediaQuery.of(context).size.height;
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.purple,
+        actions: [
+          ReutilizableWidgetAppbar(
+            ancho: ancho,
+            alto: alto,
+            titulo: 'Pedidos',
+            regresar: true,
+          ),
+        ],
+      ),
       body: Column(
         children: [
-          ReutilizableWidgetAppbar(
-              ancho: ancho, alto: alto, titulo: 'Pedidos', regresar: true),
+          SizedBox(height: alto / 40),
           SizedBox(
             width: ancho,
             height: alto / 1.2,

@@ -17,13 +17,19 @@ class _ComercianteHistorialPageState extends State<ComercianteHistorialPage> {
     final ancho = MediaQuery.of(context).size.width;
     final alto = MediaQuery.of(context).size.height;
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.purple,
+        actions: [
+          ReutilizableWidgetAppbar(
+            ancho: ancho,
+            alto: alto,
+            titulo: 'Historial de ventas',
+            regresar: true,
+          ),
+        ],
+      ),
       body: Column(
         children: [
-          ReutilizableWidgetAppbar(
-              ancho: ancho,
-              alto: alto,
-              titulo: 'Historial de ventas',
-              regresar: true),
           SizedBox(
             width: ancho,
             height: alto / 1.2,

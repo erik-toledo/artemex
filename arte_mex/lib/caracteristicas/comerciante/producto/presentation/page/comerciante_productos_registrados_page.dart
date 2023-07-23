@@ -19,10 +19,20 @@ class _ComercianteProductosRegistradosPageState
     final ancho = MediaQuery.of(context).size.width;
     final alto = MediaQuery.of(context).size.height;
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.purple,
+        actions: [
+          ReutilizableWidgetAppbar(
+            ancho: ancho,
+            alto: alto,
+            titulo: 'Productos registrados',
+            regresar: true,
+          ),
+        ],
+      ),
       body: Column(
         children: [
-          ReutilizableWidgetAppbar(
-              ancho: ancho, alto: alto, titulo: ' Productos registrados', regresar: true),
+          SizedBox(height: alto / 40),
           SizedBox(
             width: ancho,
             height: alto / 1.40,
@@ -34,7 +44,7 @@ class _ComercianteProductosRegistradosPageState
             ),
           ),
           Padding(
-            padding: EdgeInsets.only(top: (alto / 11), left: 13, right: 13),
+            padding: EdgeInsets.only(top: (alto / 15), left: 13, right: 13),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [

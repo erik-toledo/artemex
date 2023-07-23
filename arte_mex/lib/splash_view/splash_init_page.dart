@@ -33,13 +33,13 @@ class _SplashInitPageState extends State<SplashInitPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: content(data: datos),
+      body: content(),
     );
   }
 
-  Widget content({required List<Map<String, String>> data}) {
+  Widget content() {
     return CarouselSlider(
-      items: data.map((i) {
+      items: datos.map((i) {
         return Stack(fit: StackFit.expand, children: [
           Container(
             decoration: const BoxDecoration(color: Colors.transparent),

@@ -17,14 +17,19 @@ class _ComercianteEstatusProductosState
     final ancho = MediaQuery.of(context).size.width;
     final alto = MediaQuery.of(context).size.height;
     return Scaffold(
-      body: Column(
-        children: [
+      appBar: AppBar(
+        backgroundColor: Colors.purple,
+        actions: [
           ReutilizableWidgetAppbar(
             ancho: ancho,
             alto: alto,
-            titulo: 'Estatus de producto',
+            titulo: 'Estatus productos',
             regresar: true,
           ),
+        ],
+      ),
+      body: Column(
+        children: [
           SizedBox(
             width: ancho,
             height: alto / 1.40,

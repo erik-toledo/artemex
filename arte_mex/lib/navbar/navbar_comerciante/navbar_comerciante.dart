@@ -12,7 +12,7 @@ class NavbarComerciante extends StatefulWidget {
 }
 
 class _NavbarComercianteState extends State<NavbarComerciante> {
-  int index = 0;
+  int index = 1;
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(

@@ -10,7 +10,7 @@ class NavbarComercianteRoute extends StatefulWidget {
 }
 
 class _NavbarComercianteRouteState extends State<NavbarComercianteRoute> {
-  int index = 0;
+  int index = 1;
   NavbarComerciante? navbarComerciante;
 
   @override

@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:arte_mex/caracteristicas/comprador/inicio/presentation/page/comprador_detalle_producto.dart';
+import 'package:arte_mex/caracteristicas/comprador/inicio/presentation/page/comprador_lista_productos_page.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -23,14 +23,21 @@ class CompradorElementoCategoria extends StatefulWidget {
 class _CompradorElementoCategoriaState
     extends State<CompradorElementoCategoria> {
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final String categoria = widget.categoria;
     final ancho = widget.ancho;
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
       child: InkWell(
-        onTap: () {
+        onTap: () async {
           Route route = MaterialPageRoute(
-            builder: (context) => const CompradorDetalleProducto(),
+            builder: (context) =>
+                CompradorListaProductosPage(categoria: categoria),
           );
           Navigator.push(context, route);
         },

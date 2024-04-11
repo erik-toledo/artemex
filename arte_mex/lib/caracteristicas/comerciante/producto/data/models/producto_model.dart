@@ -2,14 +2,23 @@ import 'package:arte_mex/caracteristicas/comerciante/producto/domian/entities/pr
 
 class ProductoModel extends Producto {
   ProductoModel({
+    required String idVendedor,
+    required String nombreEmpresa,
     required String nombreProducto,
     required String estado,
+    required String cantidad,
     required String precio,
     required String descripcionProducto,
     required String descripcionProveedor,
     required String image,
     required String estatus,
+    required String categoria,
+    
   }) : super(
+          categoria: categoria,
+          nombreEmpresa: nombreEmpresa,
+          cantidad: cantidad,
+          idVendedor: idVendedor,
           nombreProducto: nombreProducto,
           estado: estado,
           precio: precio,
@@ -21,17 +30,25 @@ class ProductoModel extends Producto {
 
   factory ProductoModel.fromJson(Map<String, dynamic> productos) {
     return ProductoModel(
-      nombreProducto: productos['nombreProducto,'],
-      estado: productos['estado,'],
-      precio: productos['precio,'],
-      descripcionProducto: productos['descripcionProducto,'],
-      descripcionProveedor: productos['descripcionProveedor,'],
-      image: productos['image,'],
-      estatus: productos['estatus,'],
+      categoria: productos["categoria"],
+      cantidad: productos["cantidad"].toString(),
+      idVendedor: productos["idvendedor"].toString(),
+      nombreProducto: productos['nombreProducto'],
+      estado: productos['estado'],
+      precio: productos['precio'].toString(),
+      descripcionProducto: productos['descripcionProducto'],
+      nombreEmpresa: productos["nombreEmpresa"],
+      descripcionProveedor: productos['descripcionProveedor'],
+      image: productos['image'],
+      estatus: productos['estatus'],
     );
   }
   factory ProductoModel.fronEntity(Producto producto) {
     return ProductoModel(
+      categoria: producto.categoria,
+      nombreEmpresa: producto.nombreEmpresa,
+      cantidad: producto.cantidad,
+      idVendedor: producto.idVendedor,
       nombreProducto: producto.nombreProducto,
       estado: producto.estado,
       precio: producto.precio,
@@ -43,9 +60,13 @@ class ProductoModel extends Producto {
   }
   Map<String, dynamic> toJson() {
     return {
+      'idvendedor': idVendedor,
+      'categoria': categoria,
       'nombreProducto': nombreProducto,
       'estado': estado,
+      'nombreEmpresa': nombreEmpresa,
       'precio': precio,
+      'cantidad': cantidad,
       'descripcionProducto': descripcionProducto,
       'descripcionProveedor': descripcionProveedor,
       'image': image,

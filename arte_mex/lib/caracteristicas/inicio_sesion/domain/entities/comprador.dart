@@ -1,4 +1,5 @@
 class Comprador {
+  final String idComprador;
   final String nombre;
   final String apellidos;
   final String correo;
@@ -6,6 +7,7 @@ class Comprador {
   final String tipoUsuario;
 
   Comprador({
+    required this.idComprador,
     required this.nombre,
     required this.apellidos,
     required this.correo,

@@ -1,5 +1,6 @@
 import 'package:arte_mex/caracteristicas/comprador/comprar/domain/entities/compra.dart';
 import 'package:arte_mex/caracteristicas/comprador/seguimiento/presentation/pages/comprador_detalle_seguimiento_page.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -8,11 +9,13 @@ class CompradorCardSeguimiento extends StatefulWidget {
   final double ancho;
   final double alto;
   final Compra compra;
+  final BoxDecoration decoracion;
   const CompradorCardSeguimiento(
       {super.key,
       required this.ancho,
       required this.alto,
-      required this.compra});
+      required this.compra,
+      required this.decoracion});
 
   @override
   State<CompradorCardSeguimiento> createState() =>
@@ -47,125 +50,150 @@ class _CompradorCardSeguimientoState extends State<CompradorCardSeguimiento> {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(5),
                     ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(5),
-                      child: Image.asset(
-                        compra.image,
-                        fit: BoxFit.cover,
+                    child: CachedNetworkImage(
+                      progressIndicatorBuilder: (context, url, progress) =>
+                          Center(
+                        child: CircularProgressIndicator(
+                          value: progress.progress,
+                        ),
                       ),
+                      imageBuilder: (context, imageProvider) => Container(
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(
+                              5,
+                            ),
+                            image: DecorationImage(
+                              image: imageProvider,
+                              fit: BoxFit.cover,
+                            )),
+                      ),
+                      imageUrl: compra.image,
                     ),
                   ),
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 5),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(right: 3),
-                            child: SvgPicture.asset(
-                              "assets/imagenes_iconos_card/tienda.svg",
-                              width: 10,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(right: 3),
+                              child: SvgPicture.asset(
+                                "assets/imagenes_iconos_card/tienda.svg",
+                                width: 10,
+                              ),
                             ),
-                          ),
-                          Text(
-                            compra.nombreEmpresa,
+                            SizedBox(
+                              width: ancho / 4.7,
+                              child: Text(
+                                compra.nombreEmpresa,
+                                style: GoogleFonts.montserrat(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 10,
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 32),
+                              child: SvgPicture.asset(
+                                "assets/imagenes_iconos_card/verificado.svg",
+                                width: 12,
+                                colorFilter: const ColorFilter.mode(
+                                  Color(0xff1D9BF0),
+                                  BlendMode.srcIn,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(right: 3),
+                              child: SvgPicture.asset(
+                                "assets/imagenes_iconos_card/ubicacion.svg",
+                                width: 10,
+                              ),
+                            ),
+                            SizedBox(
+                              width: ancho / 3,
+                              child: Text(
+                                compra.ubicacion,
+                                overflow: TextOverflow.ellipsis,
+                                style: GoogleFonts.montserrat(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 10,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 15),
+                          child: Text(
+                            compra.nombreProducto,
                             style: GoogleFonts.montserrat(
                               fontWeight: FontWeight.w600,
                               fontSize: 10,
                             ),
                           ),
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 10),
-                            child: SvgPicture.asset(
-                              "assets/imagenes_iconos_card/verificado.svg",
-                              width: 12,
-                              colorFilter: const ColorFilter.mode(
-                                Color(0xff1D9BF0),
-                                BlendMode.srcIn,
+                        ),
+                        SizedBox(
+                          width: ancho / 3,
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 15),
+                            child: Text(
+                              compra.descripcionProducto,
+                              overflow: TextOverflow.ellipsis,
+                              style: GoogleFonts.montserrat(
+                                fontWeight: FontWeight.w400,
+                                fontSize: 10,
                               ),
                             ),
                           ),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(right: 3),
-                            child: SvgPicture.asset(
-                              "assets/imagenes_iconos_card/ubicacion.svg",
-                              width: 10,
-                            ),
-                          ),
-                          Text(
-                            compra.ubicacion,
-                            style: GoogleFonts.montserrat(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 10,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 15),
-                        child: Text(
-                          compra.nombreProducto,
-                          style: GoogleFonts.montserrat(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 10,
-                          ),
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 15),
-                        child: Text(
-                          compra.descripcionProducto,
-                          style: GoogleFonts.montserrat(
-                            fontWeight: FontWeight.w400,
-                            fontSize: 10,
-                          ),
+                        Row(
+                          children: [
+                            Text(
+                              "Cantidad: ",
+                              style: GoogleFonts.montserrat(
+                                fontWeight: FontWeight.w400,
+                                fontSize: 10,
+                              ),
+                            ),
+                            Text(
+                              compra.cantidad,
+                              style: GoogleFonts.montserrat(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 10,
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                      Row(
-                        children: [
-                          Text(
-                            "Cantidad: ",
-                            style: GoogleFonts.montserrat(
-                              fontWeight: FontWeight.w400,
-                              fontSize: 10,
+                        Row(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(right: 3, top: 3),
+                              child: SvgPicture.asset(
+                                "assets/imagenes_iconos_card/precio.svg",
+                                width: 14,
+                              ),
                             ),
-                          ),
-                          Text(
-                            compra.cantidad,
-                            style: GoogleFonts.montserrat(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 10,
+                            Text(
+                              "${compra.precio}.00",
+                              style: GoogleFonts.montserrat(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(right: 3, top: 3),
-                            child: SvgPicture.asset(
-                              "assets/imagenes_iconos_card/precio.svg",
-                              width: 14,
-                            ),
-                          ),
-                          Text(
-                            "${compra.precio}.00",
-                            style: GoogleFonts.montserrat(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 )
               ],
@@ -229,7 +257,7 @@ class _CompradorCardSeguimientoState extends State<CompradorCardSeguimiento> {
                           fontSize: 13,
                         ),
                       ),
-                      const Text("\u{0024}240.00")
+                      const Text("\u{0024}00.00")
                     ],
                   ),
                   const Column(

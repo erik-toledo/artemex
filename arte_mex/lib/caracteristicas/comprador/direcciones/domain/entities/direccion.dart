@@ -1,4 +1,6 @@
 class Direccion {
+  final String idUsuario;
+  final String idDireccion;
   final String estado;
   final String codigoPostal;
   final String municipio;
@@ -9,6 +11,8 @@ class Direccion {
   final String descripcionDomicilio;
 
   Direccion({
+    required this.idUsuario,
+    required this.idDireccion,
     required this.estado,
     required this.codigoPostal,
     required this.municipio,

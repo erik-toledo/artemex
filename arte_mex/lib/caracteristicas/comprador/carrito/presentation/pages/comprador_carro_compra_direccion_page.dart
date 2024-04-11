@@ -1,12 +1,19 @@
 import 'package:arte_mex/caracteristicas/comprador/direcciones/domain/entities/direccion.dart';
+import 'package:arte_mex/caracteristicas/comprador/direcciones/presentation/bloc/comprador_direccion_bloc.dart';
+import 'package:arte_mex/caracteristicas/comprador/direcciones/presentation/page/comprador_nueva_direccion_page.dart';
 import 'package:arte_mex/caracteristicas/comprador/direcciones/presentation/page/widgets/comprador_card_direccion.dart';
+import 'package:arte_mex/caracteristicas/comprador/pago/presentation/page/comprador_pago_page.dart';
+import 'package:arte_mex/caracteristicas/inicio_sesion/domain/entities/comprador.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../../../../utilidad/obtener_perfil_usuario.dart';
 import '../../../../../widgets_reutilizables/reutilizable_widget_Appbar.dart';
 
 class CompradorCarroCompraDireccionPage extends StatefulWidget {
-  const CompradorCarroCompraDireccionPage({super.key});
+  final double? totalPago;
+  const CompradorCarroCompraDireccionPage({super.key, required this.totalPago});
 
   @override
   State<CompradorCarroCompraDireccionPage> createState() =>
@@ -15,30 +22,18 @@ class CompradorCarroCompraDireccionPage extends StatefulWidget {
 
 class _CompradorCarroCompraDireccionPageState
     extends State<CompradorCarroCompraDireccionPage> {
-  List<Direccion> direcciones = [
-    Direccion(
-        estado: "Chiapas",
-        codigoPostal: "29150",
-        municipio: "Suchiapa",
-        calle: "Av. Primera Nte. Ote. 800",
-        numExterior: "808",
-        numInterior: "1",
-        numeroTelf: "9661156789",
-        descripcionDomicilio: "Casa gris"),
-    Direccion(
-        estado: "Chiapas",
-        codigoPostal: "29150",
-        municipio: "Suchiapa",
-        calle: "Av. Primera Nte. Ote. 800",
-        numExterior: "809",
-        numInterior: "1",
-        numeroTelf: "9661156789",
-        descripcionDomicilio: "Casa gris"),
-  ];
+  Comprador? comprador;
+
   Direccion? direccion;
   int indexSeleccionado = -1;
   bool esIgual = false;
-  void cardSeleccionda(int index) {
+  @override
+  void initState() {
+    obtenerPerfil(context);
+    super.initState();
+  }
+
+  void cardSeleccionda(int index, List<Direccion> direcciones) {
     setState(() {
       direccion = direcciones[index];
       indexSeleccionado = index;
@@ -49,7 +44,7 @@ class _CompradorCarroCompraDireccionPageState
   Widget build(BuildContext context) {
     final ancho = MediaQuery.of(context).size.width;
     final alto = MediaQuery.of(context).size.height;
-
+    double? total = (widget.totalPago != null) ? widget.totalPago : 0.0;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.purple,
@@ -68,21 +63,45 @@ class _CompradorCarroCompraDireccionPageState
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             SizedBox(
-              width: ancho / 1.1,
-              height: alto / 1.9,
-              child: ListView.builder(
-                itemCount: 2,
-                itemBuilder: (context, index) {
-                  return CompradorCardDireccion(
-                    ancho: ancho,
-                    alto: alto,
-                    esSeleccionado: (indexSeleccionado == index),
-                    onTap: () => cardSeleccionda(index),
-                    direccion: direcciones[index],
-                  );
-                },
-              ),
-            ),
+                width: ancho / 1.1,
+                height: alto / 1.9,
+                child: BlocBuilder<CompradorDireccionBloc,
+                    CompradorDireccionState>(
+                  builder: (context, state) {
+                    if (state is CompradorObteniendoDireccionState) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    } else if (state is CompradorDireccionObtenidaState) {
+                      return (state.direcciones.isNotEmpty && comprador != null)
+                          ? ListView.builder(
+                              itemCount: state.direcciones.length,
+                              itemBuilder: (context, index) {
+                                return CompradorCardDireccion(
+                                  ancho: ancho,
+                                  alto: alto,
+                                  esSeleccionado: (indexSeleccionado == index),
+                                  onTap: () =>
+                                      cardSeleccionda(index, state.direcciones),
+                                  direccion: state.direcciones[index],
+                                  idUsuario: comprador!.idComprador,
+                                );
+                              },
+                            )
+                          : mensageNoDirecciones(
+                              context,
+                              (comprador != null)
+                                  ? comprador!.idComprador
+                                  : '0');
+                    } else if (state is CompradorDireccionErrorState) {
+                      return Center(
+                        child: Text(state.error),
+                      );
+                    } else {
+                      return const Center();
+                    }
+                  },
+                )),
             Container(
               width: ancho / 1.1,
               height: alto / 4.5,
@@ -121,7 +140,7 @@ class _CompradorCarroCompraDireccionPageState
                         SizedBox(
                           width: ancho / 3,
                           child: Text(
-                            '\u{0024}1000.00',
+                            '\u{0024}$total.00',
                             textAlign: TextAlign.end,
                             overflow: TextOverflow.ellipsis,
                             style: GoogleFonts.montserrat(
@@ -169,7 +188,7 @@ class _CompradorCarroCompraDireccionPageState
                         SizedBox(
                           width: ancho / 3,
                           child: Text(
-                            '\u{0024}1000.00',
+                            '\u{0024}$total.00',
                             textAlign: TextAlign.end,
                             overflow: TextOverflow.ellipsis,
                             style: GoogleFonts.montserrat(
@@ -189,7 +208,15 @@ class _CompradorCarroCompraDireccionPageState
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(5),
                             )),
-                        onPressed: () {},
+                        onPressed: (direccion != null && total != null)
+                            ? () {
+                                Route route = MaterialPageRoute(
+                                  builder: (context) => CompradorPagoPage(
+                                      direccion: direccion!, total: total),
+                                );
+                                Navigator.push(context, route);
+                              }
+                            : null,
                         child: Text(
                           "Continuar compra",
                           style: GoogleFonts.montserrat(
@@ -208,5 +235,43 @@ class _CompradorCarroCompraDireccionPageState
         ),
       ),
     );
+  }
+
+  void obtenerPerfil(BuildContext context) async {
+    Object response = await obtenerPerfilUsuario(context);
+    if (response is Comprador) {
+      setState(() {
+        comprador = response;
+      });
+    }
+    // ignore: use_build_context_synchronously
+    context
+        .read<CompradorDireccionBloc>()
+        .add(EventBotonObtenerDireccion(idUsuario: comprador!.idComprador));
+    // ignore: use_build_context_synchronously
+  }
+
+  Center mensageNoDirecciones(BuildContext context, String idUsuario) {
+    return (comprador != null)
+        ? Center(
+            child: InkWell(
+              onTap: () {
+                Route route = MaterialPageRoute(
+                  builder: (context) =>
+                      CompradorNuevaDireccionPage(idUsuario: idUsuario),
+                );
+                Navigator.push(context, route);
+              },
+              child: Text(
+                "${comprador!.nombre.toUpperCase()}, tienes que tener direcciones agregadas, presiona este mensaje para agregar una direccion ahora",
+                textAlign: TextAlign.center,
+                style: GoogleFonts.nunito(
+                  fontWeight: FontWeight.bold,
+                  decoration: TextDecoration.underline,
+                ),
+              ),
+            ),
+          )
+        : const Center();
   }
 }

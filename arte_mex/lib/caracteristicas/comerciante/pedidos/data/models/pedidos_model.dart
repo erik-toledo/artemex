@@ -3,6 +3,7 @@ import 'package:arte_mex/caracteristicas/comerciante/pedidos/domain/entities/ped
 class PedidoModel extends Pedido {
   PedidoModel({
     required String nombreEmpresa,
+    required String idCompra,
     required String nombreProducto,
     required String cantidad,
     required String descripcionProducto,
@@ -16,7 +17,10 @@ class PedidoModel extends Pedido {
     required String idUsuario,
     required String idEmpresa,
     required String image,
+    required String direccion,
   }) : super(
+          direccion: direccion,
+          idCompra: idCompra,
           nombreEmpresa: nombreEmpresa,
           nombreProducto: nombreProducto,
           cantidad: cantidad,
@@ -32,26 +36,31 @@ class PedidoModel extends Pedido {
           idEmpresa: idEmpresa,
           image: image,
         );
-  factory PedidoModel.fromJson(Map<String, dynamic> productos) {
+  factory PedidoModel.fromJson(Map<String, dynamic> pedido) {
     return PedidoModel(
-      nombreEmpresa: productos['nombreEmpresa'],
-      nombreProducto: productos['nombreProducto'],
-      cantidad: productos['cantidad'],
-      descripcionProducto: productos['descripcionProducto'],
-      precio: productos['precio'],
-      total: productos['total'],
-      fechaCompra: productos['fechaCompra'],
-      estatusPago: productos['estatusPago'],
-      estatusEntrega: productos['estatusEntrega'],
-      ubicacion: productos['ubicacion'],
-      tipoEnvio: productos['tipoEnvio'],
-      idUsuario: productos['idUsuario'],
-      idEmpresa: productos['idEmpresa'],
-      image: productos['image'],
+      direccion:
+          (pedido["direccion"] != null) ? pedido["direccion"] : "No direccion",
+      idCompra: pedido["idcompra"].toString(),
+      nombreEmpresa: pedido['nombreEmpresa'],
+      nombreProducto: pedido['nombreProducto'],
+      cantidad: pedido['cantidad'].toString(),
+      descripcionProducto: pedido['descripcionProducto'],
+      precio: pedido['precio'].toString(),
+      total: pedido['total'].toString(),
+      fechaCompra: pedido['fechaCompra'],
+      idUsuario: pedido['idUsuario'].toString(),
+      idEmpresa: pedido['idvendedor'].toString(),
+      estatusEntrega: pedido['estatus'],
+      estatusPago: pedido['estatusPago'],
+      ubicacion: pedido['ubicacion'],
+      tipoEnvio: pedido['empresaenvio'],
+      image: pedido['image'],
     );
   }
   factory PedidoModel.fromEntity(Pedido pedido) {
     return PedidoModel(
+      direccion: pedido.direccion,
+      idCompra: pedido.idCompra,
       nombreEmpresa: pedido.nombreEmpresa,
       nombreProducto: pedido.nombreProducto,
       cantidad: pedido.cantidad,

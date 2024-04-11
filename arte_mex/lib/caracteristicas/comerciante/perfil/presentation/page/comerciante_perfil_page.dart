@@ -13,12 +13,7 @@ class ComerciantePerfilPage extends StatefulWidget {
 }
 
 class _ComerciantePerfilPageState extends State<ComerciantePerfilPage> {
-  final List<String> titulos = [
-    "Historial",
-    "Productos",
-    "Registro",
-    "Pedidos"
-  ];
+  final List<String> titulos = ["Historial", "Estatus", "Registro", "Pedidos"];
   final List<Widget> vistas = const [
     ComercianteHistorialPage(),
     ComercianteEstatusProductos(),

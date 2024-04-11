@@ -1,4 +1,5 @@
 class Comerciante {
+  final String idVendedor;
   final String nombre;
   final String apellidos;
   final String nombreEmpresa;
@@ -8,8 +9,11 @@ class Comerciante {
   final String contrasena;
   final String verificado;
   final String tipoUsuario;
+  final String numeroTelefonico;
 
   Comerciante({
+    required this.numeroTelefonico,
+    required this.idVendedor,
     required this.nombre,
     required this.apellidos,
     required this.nombreEmpresa,

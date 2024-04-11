@@ -1,3 +1,7 @@
+import 'package:arte_mex/caracteristicas/inicio_sesion/domain/entities/comerciante.dart';
+import 'package:arte_mex/caracteristicas/inicio_sesion/domain/entities/comprador.dart';
+import 'package:arte_mex/caracteristicas/inicio_sesion/presentation/pages/iniciar_sesion_page.dart';
+import 'package:arte_mex/utilidad/obtener_perfil_usuario.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -18,8 +22,18 @@ class ReutilizableWidgetPerfil extends StatefulWidget {
 }
 
 class _ReutilizableWidgetPerfilState extends State<ReutilizableWidgetPerfil> {
-  final defecto_imagen_comerciante = 'assets/local_imagenes/tienda_perfil.png';
-  final defecto_imagen_comprador = 'assets/local_imagenes/perfil.jpg';
+  Comerciante? comerciante;
+  Comprador? comprador;
+  @override
+  void initState() {
+    obtenerPeril(context);
+    obtenerPerfilComprador(context);
+    super.initState();
+  }
+
+  final defectoImagencomerciante = 'assets/local_imagenes/tienda_perfil.png';
+  final defectoImagenComprador = 'assets/local_imagenes/perfil.jpg';
+
   @override
   Widget build(BuildContext context) {
     final ancho = MediaQuery.of(context).size.width;
@@ -45,13 +59,17 @@ class _ReutilizableWidgetPerfilState extends State<ReutilizableWidgetPerfil> {
                               color: Color.fromRGBO(0, 0, 0, .250),
                             )
                           ]),
-                      child: CircleAvatar(
-                        radius: 80,
-                        backgroundImage: AssetImage((widget.usuario)
-                            ? defecto_imagen_comerciante
-                            : defecto_imagen_comprador),
-                        backgroundColor: const Color(0xff617946),
-                      ),
+                      child: (widget.usuario)
+                          ? CircleAvatar(
+                              radius: 80,
+                              backgroundImage:
+                                  AssetImage(defectoImagencomerciante),
+                              backgroundColor: const Color(0xff617946),
+                            )
+                          : SvgPicture.asset(
+                              "assets/inicio_sesion_iconos/usuario.svg",
+                              width: 150,
+                            ),
                     ),
                   ),
                   (widget.usuario)
@@ -65,7 +83,8 @@ class _ReutilizableWidgetPerfilState extends State<ReutilizableWidgetPerfil> {
                   width: ancho / 1.55,
                   height: alto / 25,
                   child: Text(
-                    'kdbruna@gmail.com',
+                    obtenerCorreo(),
+                    textAlign: TextAlign.center,
                     style: GoogleFonts.montserrat(
                       fontWeight: FontWeight.w600,
                       fontSize: 16,
@@ -84,188 +103,220 @@ class _ReutilizableWidgetPerfilState extends State<ReutilizableWidgetPerfil> {
                     Padding(
                       padding: const EdgeInsets.only(
                           left: 8, top: 8, right: 8, bottom: 2),
-                      child: Container(
-                        width: ancho / 1.2,
-                        height: alto / 12,
-                        decoration: BoxDecoration(
-                          color: const Color.fromRGBO(217, 217, 217, 1),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.only(left: 33),
-                              alignment: Alignment.centerLeft,
-                              width: ancho / 2,
-                              height: alto / 10,
-                              child: Text(
-                                widget.titulos[0],
-                                style: GoogleFonts.montserrat(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 16,
+                      child: InkWell(
+                        onTap: () {
+                          Route route = MaterialPageRoute(
+                            builder: (context) => widget.vistas[0],
+                          );
+                          Navigator.push(context, route);
+                        },
+                        child: Container(
+                          width: ancho / 1.2,
+                          height: alto / 12,
+                          decoration: BoxDecoration(
+                            color: const Color.fromRGBO(217, 217, 217, 1),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.only(left: 33),
+                                alignment: Alignment.centerLeft,
+                                width: ancho / 2,
+                                height: alto / 10,
+                                child: Text(
+                                  widget.titulos[0],
+                                  style: GoogleFonts.montserrat(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 16,
+                                  ),
                                 ),
                               ),
-                            ),
-                            Container(
-                              alignment: Alignment.center,
-                              width: ancho / 4,
-                              height: alto / 10,
-                              child: IconButton(
-                                onPressed: () {
-                                  Route route = MaterialPageRoute(
-                                    builder: (context) => widget.vistas[0],
-                                  );
-                                  Navigator.push(context, route);
-                                },
-                                icon: const Icon(
-                                  Icons.arrow_forward_ios_outlined,
-                                  color: Colors.black,
+                              Container(
+                                alignment: Alignment.center,
+                                width: ancho / 4,
+                                height: alto / 10,
+                                child: IconButton(
+                                  onPressed: () {
+                                    Route route = MaterialPageRoute(
+                                      builder: (context) => widget.vistas[0],
+                                    );
+                                    Navigator.push(context, route);
+                                  },
+                                  icon: const Icon(
+                                    Icons.arrow_forward_ios_outlined,
+                                    color: Colors.black,
+                                  ),
                                 ),
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(
-                          left: 8, top: 8, right: 8, bottom: 2),
-                      child: Container(
-                        width: ancho / 1.2,
-                        height: alto / 12,
-                        decoration: BoxDecoration(
-                          color: const Color.fromRGBO(217, 217, 217, 1),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.only(left: 33),
-                              alignment: Alignment.centerLeft,
-                              width: ancho / 2,
-                              height: alto / 10,
-                              child: Text(
-                                widget.titulos[1],
-                                style: GoogleFonts.montserrat(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ),
-                            Container(
-                              alignment: Alignment.center,
-                              width: ancho / 4,
-                              height: alto / 10,
-                              child: IconButton(
-                                onPressed: () {
-                                  Route route = MaterialPageRoute(
-                                    builder: (context) => widget.vistas[1],
-                                  );
-                                  Navigator.push(context, route);
-                                },
-                                icon: const Icon(
-                                  Icons.arrow_forward_ios_outlined,
-                                  color: Colors.black,
-                                ),
-                              ),
-                            )
-                          ],
+                              )
+                            ],
+                          ),
                         ),
                       ),
                     ),
                     Padding(
                       padding: const EdgeInsets.only(
                           left: 8, top: 8, right: 8, bottom: 2),
-                      child: Container(
-                        width: ancho / 1.2,
-                        height: alto / 12,
-                        decoration: BoxDecoration(
-                          color: const Color.fromRGBO(217, 217, 217, 1),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.only(left: 33),
-                              alignment: Alignment.centerLeft,
-                              width: ancho / 2,
-                              height: alto / 10,
-                              child: Text(
-                                widget.titulos[2],
-                                style: GoogleFonts.montserrat(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 16,
+                      child: InkWell(
+                        onTap: () {
+                          Route route = MaterialPageRoute(
+                            builder: (context) => widget.vistas[1],
+                          );
+                          Navigator.push(context, route);
+                        },
+                        child: Container(
+                          width: ancho / 1.2,
+                          height: alto / 12,
+                          decoration: BoxDecoration(
+                            color: const Color.fromRGBO(217, 217, 217, 1),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.only(left: 33),
+                                alignment: Alignment.centerLeft,
+                                width: ancho / 2,
+                                height: alto / 10,
+                                child: Text(
+                                  widget.titulos[1],
+                                  style: GoogleFonts.montserrat(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 16,
+                                  ),
                                 ),
                               ),
-                            ),
-                            Container(
-                              alignment: Alignment.center,
-                              width: ancho / 4,
-                              height: alto / 10,
-                              child: IconButton(
-                                onPressed: () {
-                                  Route route = MaterialPageRoute(
-                                    builder: (context) => widget.vistas[2],
-                                  );
-                                  Navigator.push(context, route);
-                                },
-                                icon: const Icon(
-                                  Icons.arrow_forward_ios_outlined,
-                                  color: Colors.black,
+                              Container(
+                                alignment: Alignment.center,
+                                width: ancho / 4,
+                                height: alto / 10,
+                                child: IconButton(
+                                  onPressed: () {
+                                    Route route = MaterialPageRoute(
+                                      builder: (context) => widget.vistas[1],
+                                    );
+                                    Navigator.push(context, route);
+                                  },
+                                  icon: const Icon(
+                                    Icons.arrow_forward_ios_outlined,
+                                    color: Colors.black,
+                                  ),
                                 ),
-                              ),
-                            )
-                          ],
+                              )
+                            ],
+                          ),
                         ),
                       ),
                     ),
                     Padding(
                       padding: const EdgeInsets.only(
                           left: 8, top: 8, right: 8, bottom: 2),
-                      child: Container(
-                        width: ancho / 1.2,
-                        height: alto / 12,
-                        decoration: BoxDecoration(
-                          color: const Color.fromRGBO(217, 217, 217, 1),
-                          borderRadius: BorderRadius.circular(10),
+                      child: InkWell(
+                        onTap: () {
+                          Route route = MaterialPageRoute(
+                            builder: (context) => widget.vistas[2],
+                          );
+                          Navigator.push(context, route);
+                        },
+                        child: Container(
+                          width: ancho / 1.2,
+                          height: alto / 12,
+                          decoration: BoxDecoration(
+                            color: const Color.fromRGBO(217, 217, 217, 1),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.only(left: 33),
+                                alignment: Alignment.centerLeft,
+                                width: ancho / 2,
+                                height: alto / 10,
+                                child: Text(
+                                  widget.titulos[2],
+                                  style: GoogleFonts.montserrat(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                alignment: Alignment.center,
+                                width: ancho / 4,
+                                height: alto / 10,
+                                child: IconButton(
+                                  onPressed: () {
+                                    Route route = MaterialPageRoute(
+                                      builder: (context) => widget.vistas[2],
+                                    );
+                                    Navigator.push(context, route);
+                                  },
+                                  icon: const Icon(
+                                    Icons.arrow_forward_ios_outlined,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              )
+                            ],
+                          ),
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.only(left: 33),
-                              alignment: Alignment.centerLeft,
-                              width: ancho / 2,
-                              height: alto / 10,
-                              child: Text(
-                                widget.titulos[3],
-                                style: GoogleFonts.montserrat(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 16,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(
+                          left: 8, top: 8, right: 8, bottom: 2),
+                      child: InkWell(
+                        onTap: () {
+                          Route route = MaterialPageRoute(
+                            builder: (context) => widget.vistas[3],
+                          );
+                          Navigator.push(context, route);
+                        },
+                        child: Container(
+                          width: ancho / 1.2,
+                          height: alto / 12,
+                          decoration: BoxDecoration(
+                            color: const Color.fromRGBO(217, 217, 217, 1),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.only(left: 33),
+                                alignment: Alignment.centerLeft,
+                                width: ancho / 2,
+                                height: alto / 10,
+                                child: Text(
+                                  widget.titulos[3],
+                                  style: GoogleFonts.montserrat(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 16,
+                                  ),
                                 ),
                               ),
-                            ),
-                            Container(
-                              alignment: Alignment.center,
-                              width: ancho / 4,
-                              height: alto / 10,
-                              child: IconButton(
-                                onPressed: () {
-                                  Route route = MaterialPageRoute(
-                                    builder: (context) => widget.vistas[3],
-                                  );
-                                  Navigator.push(context, route);
-                                },
-                                icon: const Icon(
-                                  Icons.arrow_forward_ios_outlined,
-                                  color: Colors.black,
+                              Container(
+                                alignment: Alignment.center,
+                                width: ancho / 4,
+                                height: alto / 10,
+                                child: IconButton(
+                                  onPressed: () {
+                                    Route route = MaterialPageRoute(
+                                      builder: (context) => widget.vistas[3],
+                                    );
+                                    Navigator.push(context, route);
+                                  },
+                                  icon: const Icon(
+                                    Icons.arrow_forward_ios_outlined,
+                                    color: Colors.black,
+                                  ),
                                 ),
-                              ),
-                            )
-                          ],
+                              )
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -278,7 +329,14 @@ class _ReutilizableWidgetPerfilState extends State<ReutilizableWidgetPerfil> {
                   width: ancho / 3.2,
                   height: alto / 15,
                   child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Route route = MaterialPageRoute(
+                          builder: (context) => const IniciarSesionPage(),
+                        );
+                        // ignore: use_build_context_synchronously
+                        Navigator.pushAndRemoveUntil(
+                            context, route, (Route<dynamic> route) => false);
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.purple,
                         shape: RoundedRectangleBorder(
@@ -320,7 +378,7 @@ class _ReutilizableWidgetPerfilState extends State<ReutilizableWidgetPerfil> {
           SizedBox(
             width: ancho / 1.4,
             child: Text(
-              'Artesanías Mx',
+              (comerciante != null) ? comerciante!.nombreEmpresa : "Empresa",
               overflow: TextOverflow.ellipsis,
               style: GoogleFonts.montserrat(
                   fontSize: 30,
@@ -352,7 +410,10 @@ class _ReutilizableWidgetPerfilState extends State<ReutilizableWidgetPerfil> {
       width: ancho / 1.1,
       height: alto / 13,
       child: Text(
-        'Kevin Debruyna',
+        (comprador != null)
+            ? "${comprador!.nombre} ${comprador!.apellidos}"
+            : "Comprador",
+        textAlign: TextAlign.center,
         style: GoogleFonts.montserrat(
             fontSize: 30,
             fontWeight: FontWeight.w600,
@@ -364,5 +425,32 @@ class _ReutilizableWidgetPerfilState extends State<ReutilizableWidgetPerfil> {
             ]),
       ),
     );
+  }
+
+  String obtenerCorreo() {
+    if (comerciante != null) {
+      return comerciante!.correo;
+    } else if (comprador != null) {
+      return comprador!.correo;
+    }
+    return "example@gmail.com";
+  }
+
+  void obtenerPeril(BuildContext context) async {
+    Object response = await obtenerPerfilUsuario(context);
+    if (response is Comerciante) {
+      setState(() {
+        comerciante = response;
+      });
+    }
+  }
+
+  void obtenerPerfilComprador(BuildContext context) async {
+    Object response = await obtenerPerfilUsuario(context);
+    if (response is Comprador) {
+      setState(() {
+        comprador = response;
+      });
+    }
   }
 }

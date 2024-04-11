@@ -1,17 +1,27 @@
-import 'package:arte_mex/caracteristicas/comprador/pago/presentation/page/comprador_pago_page.dart';
+import 'package:arte_mex/alertas/alertas.dart';
+import 'package:arte_mex/caracteristicas/comerciante/producto/domian/entities/obtener_producto.dart';
+import 'package:arte_mex/caracteristicas/comprador/carrito/domain/entities/carro.dart';
+import 'package:arte_mex/caracteristicas/comprador/carrito/presentation/bloc/comprador_carrito_bloc.dart';
+import 'package:arte_mex/caracteristicas/comprador/carrito/presentation/pages/comprador_carro_compra_page.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:quickalert/models/quickalert_type.dart';
 
 class CompradorCardDetalleProducto extends StatefulWidget {
   final double ancho;
   final double alto;
-  final int cantidadProducto;
-  const CompradorCardDetalleProducto(
-      {super.key,
-      required this.ancho,
-      required this.alto,
-      required this.cantidadProducto});
+  final ObtenerProducto producto;
+  final String idUsuario;
+  const CompradorCardDetalleProducto({
+    super.key,
+    required this.ancho,
+    required this.alto,
+    required this.producto,
+    required this.idUsuario,
+  });
 
   @override
   State<CompradorCardDetalleProducto> createState() =>
@@ -23,15 +33,14 @@ class _CompradorCardDetalleProductoState
   //
   List<String> cantidad = [];
   List<DropdownMenuItem<String>> dropDownMenuItems = [];
-  String dropdownValue = "";
+  String cantidadElegida = "";
   //
   @override
   void initState() {
     cantidad = List.generate(
-        widget.cantidadProducto, (index) => (index + 1).toString());
+        int.parse(widget.producto.cantidad), (index) => (index + 1).toString());
     dropDownMenuItems = getDropDownMenuItems();
-    dropdownValue = dropDownMenuItems[0].value!;
-
+    cantidadElegida = dropDownMenuItems[0].value!;
     super.initState();
   }
 
@@ -45,7 +54,7 @@ class _CompradorCardDetalleProductoState
 
   void changedDropDownItem(String? selectedCity) {
     setState(() {
-      dropdownValue = selectedCity!;
+      cantidadElegida = selectedCity!;
     });
   }
 
@@ -53,6 +62,8 @@ class _CompradorCardDetalleProductoState
   Widget build(BuildContext context) {
     final ancho = widget.ancho;
     final alto = widget.alto;
+    final ObtenerProducto producto = widget.producto;
+    String idUsuario = widget.idUsuario;
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.only(bottom: 10),
@@ -65,12 +76,23 @@ class _CompradorCardDetalleProductoState
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(5),
               ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(5),
-                child: Image.asset(
-                  "assets/local_imagenes/zapatilla.jpg",
-                  fit: BoxFit.cover,
+              child: CachedNetworkImage(
+                progressIndicatorBuilder: (context, url, progress) => Center(
+                  child: CircularProgressIndicator(
+                    value: progress.progress,
+                  ),
                 ),
+                imageBuilder: (context, imageProvider) => Container(
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(
+                        5,
+                      ),
+                      image: DecorationImage(
+                        image: imageProvider,
+                        fit: BoxFit.cover,
+                      )),
+                ),
+                imageUrl: producto.image,
               ),
             ),
             Row(
@@ -87,7 +109,7 @@ class _CompradorCardDetalleProductoState
                   ),
                 ),
                 Text(
-                  "500.00",
+                  "${producto.precio}.00",
                   style: GoogleFonts.montserrat(
                       fontWeight: FontWeight.bold,
                       fontSize: 32,
@@ -130,7 +152,7 @@ class _CompradorCardDetalleProductoState
                       width: ancho / 1.8,
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton(
-                          value: dropdownValue,
+                          value: cantidadElegida,
                           style: GoogleFonts.inter(
                             fontWeight: FontWeight.w500,
                             fontSize: 12,
@@ -158,7 +180,18 @@ class _CompradorCardDetalleProductoState
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   InkWell(
-                    onTap: () {},
+                    onTap: () async {
+                      bool response = await agregarCarrito(idUsuario, producto);
+                      if (response) {
+                        // ignore: use_build_context_synchronously
+                        showAlertaVistaInicio(context, QuickAlertType.success,
+                            "Hecho", "Producto agregaso al carrito");
+                      } else {
+                        // ignore: use_build_context_synchronously
+                        showAlertaError(context, QuickAlertType.error, "Error",
+                            "No se pudo agregar el producto al carrito, intente mas tarde");
+                      }
+                    },
                     child: Column(
                       children: [
                         SvgPicture.asset(
@@ -183,7 +216,7 @@ class _CompradorCardDetalleProductoState
                   InkWell(
                     onTap: () {
                       Route route = MaterialPageRoute(
-                        builder: (context) => const CompradorPagoPage(),
+                        builder: (context) => const CompradorCarroCompraPage(),
                       );
                       Navigator.push(context, route);
                     },
@@ -229,7 +262,7 @@ class _CompradorCardDetalleProductoState
                 padding: const EdgeInsets.all(8.0),
                 child: SingleChildScrollView(
                   child: Text(
-                    "Este producto esta hecho 100 % natural y elavorado por manos artesanales",
+                    producto.descripcionProducto,
                     style: GoogleFonts.montserrat(
                       fontWeight: FontWeight.w400,
                       fontSize: 12,
@@ -256,7 +289,7 @@ class _CompradorCardDetalleProductoState
                 padding: const EdgeInsets.all(8.0),
                 child: SingleChildScrollView(
                   child: Text(
-                    "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.",
+                    producto.descripcionProveedor,
                     style: GoogleFonts.montserrat(
                       fontWeight: FontWeight.w400,
                       fontSize: 12,
@@ -270,4 +303,37 @@ class _CompradorCardDetalleProductoState
       ),
     );
   }
+
+  Future<bool> agregarCarrito(String id, ObtenerProducto producto) async {
+    bool response = false;
+    if (int.parse(cantidadElegida) > 0 &&
+        int.parse(cantidadElegida) <= int.parse(producto.cantidad)) {
+      response = await context
+          .read<CompradorCarritoBloc>()
+          .agregarCarro(id, crearCarro(producto, id));
+
+      debugPrint(id);
+      // ignore: use_build_context_synchronously
+      context
+          .read<CompradorCarritoBloc>()
+          .add(EventBotonObtenerCarro(idUsuario: id));
+    }
+    return response;
+  }
+
+  Carro crearCarro(ObtenerProducto producto, String idComprador) => Carro(
+        idProducto: producto.idProducto,
+        idCarro: "0",
+        idComprador: idComprador,
+        cantidad: cantidadElegida,
+        nombreEmpresa: producto.nombreEmpresa,
+        idVendedor: producto.idVendedor,
+        nombreProducto: producto.nombreProducto,
+        estado: producto.estado,
+        precio: producto.precio,
+        descripcionProducto: producto.descripcionProducto,
+        descripcionProveedor: producto.descripcionProveedor,
+        image: producto.image,
+        estatus: "",
+      );
 }

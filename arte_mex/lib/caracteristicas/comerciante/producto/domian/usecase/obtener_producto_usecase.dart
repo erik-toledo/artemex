@@ -8,6 +8,6 @@ class ObtenerProductoUsecase {
   ObtenerProductoUsecase({required this.productoRepository});
 
   Future<List<ObtenerProducto>> execute(String id) async {
-    return await productoRepository.extraerProductosRepository();
+    return await productoRepository.extraerProductosRepository(id);
   }
 }

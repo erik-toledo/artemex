@@ -1,30 +1,56 @@
+import 'package:arte_mex/caracteristicas/comprador/direcciones/domain/entities/direccion.dart';
 import 'package:arte_mex/caracteristicas/comprador/pago/presentation/page/widgets/comprador_pago_paypal.dart';
+import 'package:arte_mex/caracteristicas/inicio_sesion/domain/entities/comprador.dart';
+import 'package:arte_mex/utilidad/bloqueo_captura_pantalla.dart';
 import 'package:arte_mex/widgets_reutilizables/reutilizable_widget_appbar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../../../../utilidad/obtener_perfil_usuario.dart';
+import '../../../carrito/domain/entities/carro.dart';
+import '../../../carrito/presentation/bloc/comprador_carrito_bloc.dart';
+
 class CompradorPagoPage extends StatefulWidget {
-  const CompradorPagoPage({super.key});
+  final Direccion direccion;
+  final double total;
+  const CompradorPagoPage(
+      {super.key, required this.direccion, required this.total});
 
   @override
   State<CompradorPagoPage> createState() => _CompradorPagoPageState();
 }
 
 class _CompradorPagoPageState extends State<CompradorPagoPage> {
+  Comprador? comprador;
+  List<Carro> productos = [];
+  @override
+  void initState() {
+    bloquearCapturaPantalla();
+    obtenerPerfil(context);
+    super.initState();
+  }
+
   String clientId = dotenv.get("CLIENT_ID");
   String secretKey = dotenv.get("SECRET_KEY");
   @override
   Widget build(BuildContext context) {
     final ancho = MediaQuery.of(context).size.width;
     final alto = MediaQuery.of(context).size.height;
+    double total = widget.total;
+    Direccion direccion = widget.direccion;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.purple,
         actions: [
           ReutilizableWidgetAppbar(
-              ancho: ancho, alto: alto, titulo: "Pago", regresar: true),
+            ancho: ancho,
+            alto: alto,
+            titulo: "Pago",
+            regresar: true,
+          ),
         ],
       ),
       body: Column(
@@ -94,7 +120,7 @@ class _CompradorPagoPageState extends State<CompradorPagoPage> {
                       SizedBox(
                         width: ancho / 3,
                         child: Text(
-                          '\u{0024}1000.00',
+                          '\u{0024}$total.00',
                           textAlign: TextAlign.end,
                           overflow: TextOverflow.ellipsis,
                           style: GoogleFonts.montserrat(
@@ -142,7 +168,7 @@ class _CompradorPagoPageState extends State<CompradorPagoPage> {
                       SizedBox(
                         width: ancho / 3,
                         child: Text(
-                          '\u{0024}1000.00',
+                          '\u{0024}$total.00',
                           textAlign: TextAlign.end,
                           overflow: TextOverflow.ellipsis,
                           style: GoogleFonts.montserrat(
@@ -160,14 +186,38 @@ class _CompradorPagoPageState extends State<CompradorPagoPage> {
           SizedBox(height: alto / 15),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 5),
-            child: CompradorPagoPayPal(
-                clientId: clientId,
-                secretKey: secretKey,
-                ancho: ancho,
-                alto: alto),
+            child: (comprador != null)
+                ? CompradorPagoPayPal(
+                    clientId: clientId,
+                    secretKey: secretKey,
+                    ancho: ancho,
+                    alto: alto,
+                    total: total,
+                    direccion: direccion,
+                    comprador: comprador!,
+                    productos: productos,
+                  )
+                : const Text("No user"),
           ),
         ],
       ),
     );
+  }
+
+  void obtenerPerfil(BuildContext context) async {
+    Object response = await obtenerPerfilUsuario(context);
+    if (response is Comprador) {
+      setState(() {
+        comprador = response;
+      });
+    }
+    // ignore: use_build_context_synchronously
+    List<Carro> lista = await context
+        .read<CompradorCarritoBloc>()
+        .obtenerLista(comprador!.idComprador);
+    setState(() {
+      productos = lista;
+    });
+    // ignore: use_build_context_synchronously
   }
 }

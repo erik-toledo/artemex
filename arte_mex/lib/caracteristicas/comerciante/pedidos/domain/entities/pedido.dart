@@ -1,4 +1,5 @@
 class Pedido {
+  final String idCompra;
   final String nombreEmpresa;
   final String nombreProducto;
   final String cantidad;
@@ -13,8 +14,11 @@ class Pedido {
   final String idUsuario;
   final String idEmpresa;
   final String image;
+  final String direccion;
 
   Pedido({
+    required this.direccion,
+    required this.idCompra,
     required this.nombreEmpresa,
     required this.nombreProducto,
     required this.cantidad,

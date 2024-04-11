@@ -1,13 +1,29 @@
 // ignore_for_file: deprecated_member_use
+import 'package:arte_mex/caracteristicas/comerciante/producto/domian/entities/obtener_producto.dart';
+import 'package:arte_mex/caracteristicas/comerciante/producto/presentation/bloc/comerciante_producto_bloc.dart';
+import 'package:arte_mex/caracteristicas/comerciante/producto/presentation/page/comerciante_registro_producto_page.dart';
+import 'package:arte_mex/caracteristicas/inicio_sesion/domain/entities/comerciante.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+
+import '../../../../../comprador/inicio/domain/entities/categoria.dart';
 
 class ComercianteCardProductoPage extends StatefulWidget {
   final double ancho;
   final double alto;
+  final ObtenerProducto producto;
+  final Comerciante comerciante;
+  final List<Categoria> categorias;
   const ComercianteCardProductoPage(
-      {super.key, required this.ancho, required this.alto});
+      {super.key,
+      required this.ancho,
+      required this.alto,
+      required this.producto,
+      required this.comerciante,
+      required this.categorias});
 
   @override
   State<ComercianteCardProductoPage> createState() =>
@@ -18,6 +34,7 @@ class _ComercianteCardProductoPageState
     extends State<ComercianteCardProductoPage> {
   @override
   Widget build(BuildContext context) {
+    ObtenerProducto productoObtenido = widget.producto;
     return Padding(
       padding: const EdgeInsets.only(left: 15.0, right: 15.0, bottom: 15),
       child: Container(
@@ -41,12 +58,23 @@ class _ComercianteCardProductoPageState
                     5,
                   ),
                 ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(5),
-                  child: Image.asset(
-                    'assets/local_imagenes/zapatilla.jpg',
-                    fit: BoxFit.cover,
+                child: CachedNetworkImage(
+                  progressIndicatorBuilder: (context, url, progress) => Center(
+                    child: CircularProgressIndicator(
+                      value: progress.progress,
+                    ),
                   ),
+                  imageBuilder: (context, imageProvider) => Container(
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(
+                          5,
+                        ),
+                        image: DecorationImage(
+                          image: imageProvider,
+                          fit: BoxFit.cover,
+                        )),
+                  ),
+                  imageUrl: productoObtenido.image,
                 ),
               ),
             ),
@@ -64,13 +92,17 @@ class _ComercianteCardProductoPageState
                           color: Colors.black,
                           width: 12,
                         ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 3),
-                          child: Text(
-                            'Artesanias Mx',
-                            style: GoogleFonts.montserrat(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 11,
+                        SizedBox(
+                          width: widget.ancho / 3,
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 3),
+                            child: Text(
+                              widget.comerciante.nombreEmpresa,
+                              overflow: TextOverflow.ellipsis,
+                              style: GoogleFonts.montserrat(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 11,
+                              ),
                             ),
                           ),
                         ),
@@ -94,7 +126,7 @@ class _ComercianteCardProductoPageState
                         Padding(
                           padding: const EdgeInsets.only(left: 3),
                           child: Text(
-                            'Tuxtla Gtz',
+                            productoObtenido.estado,
                             style: GoogleFonts.montserrat(
                               fontWeight: FontWeight.w500,
                               fontSize: 11,
@@ -108,7 +140,7 @@ class _ComercianteCardProductoPageState
                         Padding(
                           padding: const EdgeInsets.only(left: 17),
                           child: Text(
-                            'Licor artesanal',
+                            productoObtenido.nombreProducto,
                             style: GoogleFonts.montserrat(
                               fontWeight: FontWeight.w500,
                               fontSize: 11,
@@ -132,7 +164,7 @@ class _ComercianteCardProductoPageState
                         Padding(
                           padding: const EdgeInsets.only(left: 7),
                           child: Text(
-                            '5',
+                            productoObtenido.cantidad,
                             style: GoogleFonts.montserrat(
                               fontWeight: FontWeight.w500,
                               fontSize: 11,
@@ -150,7 +182,7 @@ class _ComercianteCardProductoPageState
                         Padding(
                           padding: const EdgeInsets.only(left: 3),
                           child: Text(
-                            '500.00',
+                            "${productoObtenido.precio}.00",
                             style: GoogleFonts.montserrat(
                               fontWeight: FontWeight.bold,
                               fontSize: 18,
@@ -168,15 +200,33 @@ class _ComercianteCardProductoPageState
                 Padding(
                   padding: const EdgeInsets.only(top: 4),
                   child: InkWell(
-                    onTap: () {},
+                    onTap: () async {
+                      context.read<ComercianteProductoBloc>().add(
+                            EventBotonEliminarProducto(
+                                idProducto: productoObtenido.idProducto),
+                          );
+                      context.read<ComercianteProductoBloc>().add(
+                          EventBotonObtenerProducto(
+                              idUsuario: widget.comerciante.idVendedor));
+                    },
                     child: const Icon(
                       Icons.close,
                       color: Colors.purple,
                     ),
                   ),
                 ),
+                SizedBox(height: widget.alto / 50),
                 InkWell(
-                  onTap: () {},
+                  onTap: () {
+                    Route route = MaterialPageRoute(
+                      builder: (context) => ComercianteRegistroProductoPage(
+                        id: widget.comerciante.idVendedor,
+                        categorias: widget.categorias,
+                        obtenerProducto: productoObtenido,
+                      ),
+                    );
+                    Navigator.push(context, route);
+                  },
                   child: SvgPicture.asset(
                     'assets/imagenes_iconos_card/editar.svg',
                     width: 19,

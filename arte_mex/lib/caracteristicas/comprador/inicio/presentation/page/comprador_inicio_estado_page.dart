@@ -1,5 +1,7 @@
+import 'package:arte_mex/caracteristicas/comprador/inicio/presentation/bloc/comprador_inicio_bloc.dart';
 import 'package:arte_mex/caracteristicas/comprador/inicio/presentation/page/widgets/comprador_elemento_categoria.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class CompradorInicioEstadoPage extends StatefulWidget {
@@ -14,6 +16,12 @@ class CompradorInicioEstadoPage extends StatefulWidget {
 }
 
 class _CompradorInicioEstadoPageState extends State<CompradorInicioEstadoPage> {
+  @override
+  void initState() {
+    obtenerCategorias(context, widget.tituloEstado);
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     final ancho = MediaQuery.of(context).size.width;
@@ -111,22 +119,46 @@ class _CompradorInicioEstadoPageState extends State<CompradorInicioEstadoPage> {
             child: SizedBox(
               width: ancho,
               height: alto / 1.6,
-              child: GridView.count(
-                crossAxisCount: 3,
-                crossAxisSpacing: 20,
-                childAspectRatio: 1,
-                children: List.generate(30, (index) {
-                  return CompradorElementoCategoria(
-                    ancho: ancho,
-                    alto: alto,
-                    categoria: "Aretes",
-                  );
-                }),
+              child: BlocBuilder<CompradorInicioBloc, CompradorInicioState>(
+                builder: (context, state) {
+                  if (state is CompradorInicioObteniendoArticulosState) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  } else if (state is CompradorInicioCategoriaObtenidosState) {
+                    return GridView.count(
+                      crossAxisCount: 3,
+                      crossAxisSpacing: 20,
+                      childAspectRatio: 1,
+                      children: List.generate(state.categoria.length, (index) {
+                        return CompradorElementoCategoria(
+                          ancho: ancho,
+                          alto: alto,
+                          categoria: state.categoria[index].categoria,
+                        );
+                      }),
+                    );
+                  } else if (state is CompradorInicioErrorState) {
+                    return Center(
+                      child: Text(state.error),
+                    );
+                  } else {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+                },
               ),
             ),
           ),
         ],
       ),
     );
+  }
+
+  void obtenerCategorias(BuildContext context, String titulo) async {
+    context
+        .read<CompradorInicioBloc>()
+        .add(EventBotonObtenerCategorias(estado: titulo.toUpperCase()));
   }
 }

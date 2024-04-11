@@ -6,7 +6,7 @@ class ActualizarProductoUsecase{
 
   ActualizarProductoUsecase({required this.productoRepository});
 
-  Future<void> execute(String id,Producto producto) async {
+  Future<bool> execute(String id,Producto producto) async {
     return await productoRepository.editarProductoRepository(id, producto);
   }
 }

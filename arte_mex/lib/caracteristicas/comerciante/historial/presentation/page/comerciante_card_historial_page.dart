@@ -1,14 +1,21 @@
 // ignore_for_file: deprecated_member_use
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../../../comprador/historial/domain/entities/comprador_historial_compra.dart';
+
 class ComercianteCardHistorialPage extends StatefulWidget {
   final double ancho;
   final double alto;
+  final CompradorHistorialCompra compradorHistorialCompra;
   const ComercianteCardHistorialPage(
-      {super.key, required this.ancho, required this.alto});
+      {super.key,
+      required this.ancho,
+      required this.alto,
+      required this.compradorHistorialCompra});
 
   @override
   State<ComercianteCardHistorialPage> createState() =>
@@ -19,8 +26,9 @@ class _ComercianteCardHistorialPageState
     extends State<ComercianteCardHistorialPage> {
   @override
   Widget build(BuildContext context) {
+    CompradorHistorialCompra historialCompra = widget.compradorHistorialCompra;
     return Padding(
-      padding: const EdgeInsets.only(left: 15.0, right: 15.0, bottom: 15),
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
       child: Container(
         width: widget.ancho / 1.3,
         height: widget.alto / 5,
@@ -42,12 +50,23 @@ class _ComercianteCardHistorialPageState
                     5,
                   ),
                 ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(5),
-                  child: Image.asset(
-                    'assets/local_imagenes/zapatilla.jpg',
-                    fit: BoxFit.cover,
+                child: CachedNetworkImage(
+                  progressIndicatorBuilder: (context, url, progress) => Center(
+                    child: CircularProgressIndicator(
+                      value: progress.progress,
+                    ),
                   ),
+                  imageBuilder: (context, imageProvider) => Container(
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(
+                          5,
+                        ),
+                        image: DecorationImage(
+                          image: imageProvider,
+                          fit: BoxFit.cover,
+                        )),
+                  ),
+                  imageUrl: historialCompra.image,
                 ),
               ),
             ),
@@ -65,18 +84,21 @@ class _ComercianteCardHistorialPageState
                           color: Colors.black,
                           width: 8,
                         ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 3),
-                          child: Text(
-                            'Artesanias Mx',
-                            style: GoogleFonts.montserrat(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 8,
+                        SizedBox(
+                          width: widget.ancho / 5.5,
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 3),
+                            child: Text(
+                              historialCompra.nombreEmpresa,
+                              style: GoogleFonts.montserrat(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 8,
+                              ),
                             ),
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.only(left: 1, bottom: 10),
+                          padding: const EdgeInsets.only(left: 1, bottom: 20),
                           child: SvgPicture.asset(
                             'assets/imagenes_iconos_card/verificado.svg',
                             color: const Color.fromRGBO(29, 155, 240, 1),
@@ -95,7 +117,7 @@ class _ComercianteCardHistorialPageState
                         Padding(
                           padding: const EdgeInsets.only(left: 3),
                           child: Text(
-                            'Tuxtla Gtz',
+                            historialCompra.ubicacion,
                             style: GoogleFonts.montserrat(
                               fontWeight: FontWeight.w500,
                               fontSize: 8,
@@ -109,7 +131,7 @@ class _ComercianteCardHistorialPageState
                         Padding(
                           padding: const EdgeInsets.only(left: 12),
                           child: Text(
-                            'Licor artesanal',
+                            historialCompra.nombreProducto,
                             style: GoogleFonts.montserrat(
                               fontWeight: FontWeight.w500,
                               fontSize: 8,
@@ -133,7 +155,7 @@ class _ComercianteCardHistorialPageState
                         Padding(
                           padding: const EdgeInsets.only(left: 7),
                           child: Text(
-                            '5',
+                            historialCompra.cantidad,
                             style: GoogleFonts.montserrat(
                               fontWeight: FontWeight.w500,
                               fontSize: 8,
@@ -151,7 +173,7 @@ class _ComercianteCardHistorialPageState
                         Padding(
                           padding: const EdgeInsets.only(left: 3),
                           child: Text(
-                            '500.00',
+                            "${historialCompra.precio}.00",
                             style: GoogleFonts.montserrat(
                               fontWeight: FontWeight.bold,
                               fontSize: 13,
@@ -163,7 +185,7 @@ class _ComercianteCardHistorialPageState
                     Row(
                       children: [
                         Text(
-                          'Fecha de venta: 11/06/2023',
+                          'Fecha de venta: ${historialCompra.fechaCompra}',
                           style: GoogleFonts.montserrat(
                             fontWeight: FontWeight.w400,
                             fontSize: 5.5,
@@ -204,7 +226,7 @@ class _ComercianteCardHistorialPageState
                       Padding(
                         padding: const EdgeInsets.only(left: 3.0),
                         child: Text(
-                          'Entregado',
+                          historialCompra.estatusEntrega,
                           style: GoogleFonts.montserrat(
                               fontWeight: FontWeight.w600, fontSize: 6),
                         ),

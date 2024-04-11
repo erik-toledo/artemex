@@ -1,11 +1,28 @@
+// ignore_for_file: use_build_context_synchronously
+
+import 'package:arte_mex/alertas/alertas.dart';
+import 'package:arte_mex/caracteristicas/comprador/carrito/domain/entities/carro.dart';
+import 'package:arte_mex/caracteristicas/inicio_sesion/domain/entities/comprador.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:quickalert/models/quickalert_type.dart';
+
+import '../../bloc/comprador_carrito_bloc.dart';
 
 class CompradorCarro extends StatefulWidget {
   final double ancho;
   final double alto;
-  const CompradorCarro({super.key, required this.ancho, required this.alto});
+  final Carro carro;
+  final Comprador comprador;
+  const CompradorCarro(
+      {super.key,
+      required this.ancho,
+      required this.alto,
+      required this.carro,
+      required this.comprador});
 
   @override
   State<CompradorCarro> createState() => _CompradorCarroState();
@@ -16,6 +33,8 @@ class _CompradorCarroState extends State<CompradorCarro> {
   Widget build(BuildContext context) {
     final ancho = widget.ancho;
     final alto = widget.alto;
+    Carro carro = widget.carro;
+    Comprador comprador = widget.comprador;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: Container(
@@ -34,12 +53,23 @@ class _CompradorCarroState extends State<CompradorCarro> {
                 width: ancho / 3,
                 height: alto / 6,
                 color: Colors.amber,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(5),
-                  child: Image.asset(
-                    'assets/local_imagenes/zapatilla.jpg',
-                    fit: BoxFit.cover,
+                child: CachedNetworkImage(
+                  progressIndicatorBuilder: (context, url, progress) => Center(
+                    child: CircularProgressIndicator(
+                      value: progress.progress,
+                    ),
                   ),
+                  imageBuilder: (context, imageProvider) => Container(
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(
+                          5,
+                        ),
+                        image: DecorationImage(
+                          image: imageProvider,
+                          fit: BoxFit.cover,
+                        )),
+                  ),
+                  imageUrl: carro.image,
                 ),
               ),
             ),
@@ -58,11 +88,15 @@ class _CompradorCarroState extends State<CompradorCarro> {
                           width: 10,
                         ),
                       ),
-                      Text(
-                        'Artesanias Mx',
-                        style: GoogleFonts.montserrat(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 10,
+                      SizedBox(
+                        width: ancho / 3.4,
+                        child: Text(
+                          carro.nombreEmpresa,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.montserrat(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 10,
+                          ),
                         ),
                       ),
                       Padding(
@@ -85,22 +119,30 @@ class _CompradorCarroState extends State<CompradorCarro> {
                           width: 10,
                         ),
                       ),
-                      Text(
-                        'Tuxtla Gtz',
-                        style: GoogleFonts.montserrat(
-                          fontWeight: FontWeight.w500,
-                          fontSize: 10,
+                      SizedBox(
+                        width: ancho / 3.4,
+                        child: Text(
+                          carro.estado,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.montserrat(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 10,
+                          ),
                         ),
                       ),
                     ],
                   ),
                   Padding(
                     padding: const EdgeInsets.only(left: 15),
-                    child: Text(
-                      'Licor artesanal',
-                      style: GoogleFonts.montserrat(
-                        fontWeight: FontWeight.w400,
-                        fontSize: 10,
+                    child: SizedBox(
+                      width: ancho / 3.4,
+                      child: Text(
+                        carro.descripcionProducto,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.montserrat(
+                          fontWeight: FontWeight.w400,
+                          fontSize: 10,
+                        ),
                       ),
                     ),
                   ),
@@ -116,7 +158,7 @@ class _CompradorCarroState extends State<CompradorCarro> {
                           ),
                         ),
                         Text(
-                          '5',
+                          carro.cantidad,
                           style: GoogleFonts.montserrat(
                             fontWeight: FontWeight.w500,
                             fontSize: 10,
@@ -137,7 +179,7 @@ class _CompradorCarroState extends State<CompradorCarro> {
                           ),
                         ),
                         Text(
-                          'Normal',
+                          "Normal",
                           style: GoogleFonts.montserrat(
                             fontWeight: FontWeight.w500,
                             fontSize: 8,
@@ -156,7 +198,7 @@ class _CompradorCarroState extends State<CompradorCarro> {
                         ),
                       ),
                       Text(
-                        '500.00',
+                        '${carro.precio}.00',
                         style: GoogleFonts.montserrat(
                           fontWeight: FontWeight.bold,
                           fontSize: 15,
@@ -176,7 +218,16 @@ class _CompradorCarroState extends State<CompradorCarro> {
                     top: -12,
                     right: -13,
                     child: IconButton(
-                      onPressed: () {},
+                      onPressed: () async {
+                        if (await eliminarArticuloCarro(carro.idCarro)) {
+                          context.read<CompradorCarritoBloc>().add(
+                              EventBotonObtenerCarro(
+                                  idUsuario: comprador.idComprador));
+                        } else {
+                          showAlertaVistaInicio(context, QuickAlertType.error,
+                              "Error", "No se pudo eliminar el articulo");
+                        }
+                      },
                       icon: const Icon(
                         Icons.close,
                         color: Colors.purple,
@@ -190,5 +241,13 @@ class _CompradorCarroState extends State<CompradorCarro> {
         ),
       ),
     );
+  }
+
+  Future<bool> eliminarArticuloCarro(String id) async {
+    try {
+      return await context.read<CompradorCarritoBloc>().eliminarCarro(id);
+    } catch (e) {
+      return false;
+    }
   }
 }

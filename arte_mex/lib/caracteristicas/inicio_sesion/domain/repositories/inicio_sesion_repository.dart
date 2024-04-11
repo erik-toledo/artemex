@@ -1,3 +1,5 @@
+import 'package:arte_mex/caracteristicas/inicio_sesion/domain/entities/sesion.dart';
+
 abstract class InicioSesionRepository{
-  Future<bool>iniciarSesionRepository(String correo,String contrasena);
+  Future<bool>iniciarSesionRepository(Sesion sesion);
 }

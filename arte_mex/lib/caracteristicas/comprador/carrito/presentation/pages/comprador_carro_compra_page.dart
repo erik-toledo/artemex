@@ -1,8 +1,13 @@
+import 'package:arte_mex/caracteristicas/comprador/carrito/domain/entities/carro.dart';
 import 'package:arte_mex/caracteristicas/comprador/carrito/presentation/pages/widgets/comprador_carro.dart';
+import 'package:arte_mex/caracteristicas/inicio_sesion/domain/entities/comprador.dart';
 import 'package:arte_mex/widgets_reutilizables/reutilizable_widget_Appbar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../../../../utilidad/obtener_perfil_usuario.dart';
+import '../bloc/comprador_carrito_bloc.dart';
 import 'comprador_carro_compra_direccion_page.dart';
 
 class CompradorCarroCompraPage extends StatefulWidget {
@@ -14,6 +19,15 @@ class CompradorCarroCompraPage extends StatefulWidget {
 }
 
 class _CompradorCarroCompraPageState extends State<CompradorCarroCompraPage> {
+  Comprador? comprador;
+  double? total;
+  bool esVacia = false;
+  @override
+  void initState() {
+    obtenerPerfil(context);
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     final ancho = MediaQuery.of(context).size.width;
@@ -39,10 +53,35 @@ class _CompradorCarroCompraPageState extends State<CompradorCarroCompraPage> {
             child: SizedBox(
               width: ancho / 1.1,
               height: alto / 1.9,
-              child: ListView.builder(
-                itemCount: 2,
-                itemBuilder: (context, index) {
-                  return CompradorCarro(ancho: ancho, alto: alto);
+              child: BlocBuilder<CompradorCarritoBloc, CompradorCarritoState>(
+                builder: (context, state) {
+                  if (state is CompradorObteniendoCarritoState) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  } else if (state is CompradorCarritoObtenidoState) {
+                    return (state.carro.isNotEmpty && comprador != null)
+                        ? ListView.builder(
+                            itemCount: state.carro.length,
+                            itemBuilder: (context, index) {
+                              return CompradorCarro(
+                                ancho: ancho,
+                                alto: alto,
+                                carro: state.carro[index],
+                                comprador: comprador!,
+                              );
+                            },
+                          )
+                        : const Center(
+                            child: Text("No tienes productos agregados"),
+                          );
+                  } else if (state is CompradorCarritoError) {
+                    return Center(
+                      child: Text(state.error),
+                    );
+                  } else {
+                    return const Center();
+                  }
                 },
               ),
             ),
@@ -84,7 +123,7 @@ class _CompradorCarroCompraPageState extends State<CompradorCarroCompraPage> {
                       SizedBox(
                         width: ancho / 3,
                         child: Text(
-                          '\u{0024}1000.00',
+                          (total != null) ? '\u{0024}$total' : "00.00",
                           textAlign: TextAlign.end,
                           overflow: TextOverflow.ellipsis,
                           style: GoogleFonts.montserrat(
@@ -132,7 +171,7 @@ class _CompradorCarroCompraPageState extends State<CompradorCarroCompraPage> {
                       SizedBox(
                         width: ancho / 3,
                         child: Text(
-                          '\u{0024}1000.00',
+                          (total != null) ? '\u{0024}$total' : "00.00",
                           textAlign: TextAlign.end,
                           overflow: TextOverflow.ellipsis,
                           style: GoogleFonts.montserrat(
@@ -152,13 +191,17 @@ class _CompradorCarroCompraPageState extends State<CompradorCarroCompraPage> {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(5),
                           )),
-                      onPressed: () {
-                        Route route = MaterialPageRoute(
-                          builder: (context) =>
-                              const CompradorCarroCompraDireccionPage(),
-                        );
-                        Navigator.push(context, route);
-                      },
+                      onPressed: (esVacia)
+                          ? () {
+                              Route route = MaterialPageRoute(
+                                builder: (context) =>
+                                    CompradorCarroCompraDireccionPage(
+                                        totalPago:
+                                            (total != null) ? total : 0.0),
+                              );
+                              Navigator.push(context, route);
+                            }
+                          : null,
                       child: Text(
                         'Continuar compra',
                         style: GoogleFonts.montserrat(
@@ -176,5 +219,43 @@ class _CompradorCarroCompraPageState extends State<CompradorCarroCompraPage> {
         ],
       ),
     );
+  }
+
+  void obtenerPerfil(BuildContext context) async {
+    Object response = await obtenerPerfilUsuario(context);
+    if (response is Comprador) {
+      setState(() {
+        comprador = response;
+      });
+    }
+
+    // ignore: use_build_context_synchronously
+    context
+        .read<CompradorCarritoBloc>()
+        .add(EventBotonObtenerCarro(idUsuario: comprador!.idComprador));
+    calcularTotal();
+  }
+
+  void calcularTotal() async {
+    double totalEnMetodo = 0.0;
+    if (comprador != null) {
+      List<Carro> lista = await context
+          .read<CompradorCarritoBloc>()
+          .obtenerLista(comprador!.idComprador);
+      if (lista.isNotEmpty) {
+        for (var element in lista) {
+          totalEnMetodo +=
+              double.parse(element.precio) * double.parse(element.cantidad);
+        }
+        setState(() {
+          total = totalEnMetodo;
+          esVacia = !esVacia;
+        });
+      } else {
+        setState(() {
+          total = totalEnMetodo;
+        });
+      }
+    }
   }
 }

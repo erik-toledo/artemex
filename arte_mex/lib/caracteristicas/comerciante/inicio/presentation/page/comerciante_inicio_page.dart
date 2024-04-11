@@ -1,7 +1,14 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:arte_mex/caracteristicas/comerciante/inicio/presentation/page/widgets/comerciante_card.dart';
+import 'package:arte_mex/caracteristicas/inicio_sesion/domain/entities/comerciante.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+
+import '../../../../inicio_sesion/presentation/bloc/inicio_sesion_bloc.dart';
+import '../../../pedidos/presentation/bloc/comerciante_pedidos_bloc.dart';
 
 class ComercianteInicioPage extends StatefulWidget {
   const ComercianteInicioPage({super.key});
@@ -11,6 +18,13 @@ class ComercianteInicioPage extends StatefulWidget {
 }
 
 class _ComercianteInicioPageState extends State<ComercianteInicioPage> {
+  Comerciante? comerciante;
+  @override
+  void initState() {
+    extraerDatos();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     final ancho = MediaQuery.of(context).size.width;
@@ -115,11 +129,17 @@ class _ComercianteInicioPageState extends State<ComercianteInicioPage> {
                     fontSize: 18,
                   ),
                 ),
-                Text(
-                  'Artesanias Mx',
-                  style: GoogleFonts.montserrat(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 18,
+                SizedBox(
+                  width: ancho / 2,
+                  child: Text(
+                    (comerciante != null)
+                        ? comerciante!.nombreEmpresa
+                        : "Empresa",
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.montserrat(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 18,
+                    ),
                   ),
                 ),
                 Padding(
@@ -139,7 +159,7 @@ class _ComercianteInicioPageState extends State<ComercianteInicioPage> {
             child: Row(
               children: [
                 Text(
-                  'Envios pendientes',
+                  'Alguno de tus pedidos',
                   style: GoogleFonts.montserrat(
                       fontWeight: FontWeight.w600,
                       fontSize: 10,
@@ -151,29 +171,62 @@ class _ComercianteInicioPageState extends State<ComercianteInicioPage> {
           SizedBox(
             width: ancho / 1.1,
             height: alto / 2.3,
-            child: ListView.builder(
-              itemCount: 2,
-              itemBuilder: (context, index) {
-                return Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 5),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          cardTipoLarga(ancho / 1.2, alto / 2.5),
-                          cardTipoLarga(ancho / 1.2, alto / 2.5),
-                          cardTipoLarga(ancho / 1.2, alto / 2.5)
-                        ],
-                      ),
+            child: BlocBuilder<ComerciantePedidosBloc, ComerciantePedidosState>(
+              builder: (context, state) {
+                if (state is ComercianteObteniendoPedidosState) {
+                  return const Center(
+                    child: CircularProgressIndicator(
+                      color: Colors.purple,
                     ),
-                  ],
-                );
+                  );
+                } else if (state is ComerciantePedidosObtenidosState) {
+                  return (state.pedidos.isNotEmpty)
+                      ? GridView.builder(
+                          itemCount: state.pedidos.length,
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisSpacing: 10,
+                            childAspectRatio: 3 / 6,
+                            crossAxisCount: 3,
+                          ),
+                          itemBuilder: (context, index) {
+                            return cardTipoLarga(ancho / 1.2, alto / 2.5,
+                                context, state.pedidos[index]);
+                          },
+                        )
+                      : Center(
+                          child: Text(
+                            "No hay pedidos para mostrar",
+                            style: GoogleFonts.nunitoSans(
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        );
+                } else if (state is ComercianteErrorPedidosState) {
+                  return Center(
+                    child: Text(state.error),
+                  );
+                } else {
+                  return const Center();
+                }
               },
             ),
           )
         ],
       ),
     );
+  }
+
+  void extraerDatos() async {
+    Object response =
+        await context.read<InicioSesionBloc>().obtenerInformacionUsuario();
+    if (response is Comerciante) {
+      setState(() {
+        comerciante = response;
+      });
+    }
+    context
+        .read<ComerciantePedidosBloc>()
+        .add(EventBotonObtenerPedidos(idUsuario: comerciante!.idVendedor));
   }
 }

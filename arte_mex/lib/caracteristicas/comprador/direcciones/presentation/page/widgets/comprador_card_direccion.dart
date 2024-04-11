@@ -1,5 +1,9 @@
+import 'package:arte_mex/alertas/alertas.dart';
+import 'package:arte_mex/caracteristicas/comprador/direcciones/presentation/bloc/comprador_direccion_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:quickalert/quickalert.dart';
 
 import '../../../domain/entities/direccion.dart';
 
@@ -8,6 +12,7 @@ class CompradorCardDireccion extends StatefulWidget {
   final double alto;
   final bool esSeleccionado;
   final Direccion direccion;
+  final String idUsuario;
   final void Function()? onTap;
   const CompradorCardDireccion({
     super.key,
@@ -16,6 +21,7 @@ class CompradorCardDireccion extends StatefulWidget {
     required this.esSeleccionado,
     required this.onTap,
     required this.direccion,
+    required this.idUsuario,
   });
 
   @override
@@ -26,6 +32,7 @@ class _CompradorCardDireccionState extends State<CompradorCardDireccion> {
   @override
   Widget build(BuildContext context) {
     Direccion direccion = widget.direccion;
+    String idComprador = widget.idUsuario;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: InkWell(
@@ -36,7 +43,9 @@ class _CompradorCardDireccionState extends State<CompradorCardDireccion> {
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(5),
               color: const Color(0xFFE4E3E3),
-              border: (widget.esSeleccionado) ? Border.all(color: Colors.purple) : null),
+              border: (widget.esSeleccionado)
+                  ? Border.all(color: Colors.purple)
+                  : null),
           child: Row(
             children: [
               Padding(
@@ -74,7 +83,7 @@ class _CompradorCardDireccionState extends State<CompradorCardDireccion> {
                             ),
                           ),
                           Text(
-                            'Chiapas',
+                            direccion.estado,
                             style: GoogleFonts.montserrat(
                               fontWeight: FontWeight.w500,
                               fontSize: 9,
@@ -92,7 +101,7 @@ class _CompradorCardDireccionState extends State<CompradorCardDireccion> {
                             ),
                           ),
                           Text(
-                            'Suchiapa',
+                            direccion.municipio,
                             style: GoogleFonts.montserrat(
                               fontWeight: FontWeight.w500,
                               fontSize: 9,
@@ -112,7 +121,7 @@ class _CompradorCardDireccionState extends State<CompradorCardDireccion> {
                           SizedBox(
                             width: widget.ancho / 2.5,
                             child: Text(
-                              'Av. Primera Nte. Ote.',
+                              direccion.calle,
                               overflow: TextOverflow.ellipsis,
                               style: GoogleFonts.montserrat(
                                 fontWeight: FontWeight.w500,
@@ -147,7 +156,7 @@ class _CompradorCardDireccionState extends State<CompradorCardDireccion> {
                             ),
                           ),
                           Text(
-                            '08',
+                            direccion.numInterior,
                             style: GoogleFonts.montserrat(
                               fontWeight: FontWeight.w500,
                               fontSize: 9,
@@ -165,7 +174,7 @@ class _CompradorCardDireccionState extends State<CompradorCardDireccion> {
                             ),
                           ),
                           Text(
-                            '29150',
+                            direccion.codigoPostal,
                             style: GoogleFonts.montserrat(
                               fontWeight: FontWeight.w500,
                               fontSize: 9,
@@ -183,22 +192,18 @@ class _CompradorCardDireccionState extends State<CompradorCardDireccion> {
                     width: widget.ancho / 11,
                     height: widget.alto / 20,
                     child: IconButton(
-                      onPressed: () {},
+                      onPressed: () async {
+                        bool response = await eliminarDireaccion(
+                            context, direccion.idDireccion, idComprador);
+                        if (!response) {
+                          // ignore: use_build_context_synchronously
+                          showAlertaError(context, QuickAlertType.error,
+                              "Error", "La direccion no se pudo eliminar");
+                        }
+                      },
                       icon: const Icon(
                         Icons.close,
                         color: Colors.purple,
-                        size: 25,
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    width: widget.ancho / 11,
-                    height: widget.alto / 20,
-                    child: IconButton(
-                      onPressed: () {},
-                      icon: const Icon(
-                        Icons.edit_location_outlined,
-                        color: Color(0XFFEDA812),
                         size: 25,
                       ),
                     ),
@@ -210,5 +215,23 @@ class _CompradorCardDireccionState extends State<CompradorCardDireccion> {
         ),
       ),
     );
+  }
+
+  Future<bool> eliminarDireaccion(
+      BuildContext context, String idDireccion, String idComprador) async {
+    try {
+      bool respose = await context
+          .read<CompradorDireccionBloc>()
+          .eliminarDireccion(idDireccion);
+      if (respose) {
+        // ignore: use_build_context_synchronously
+        context
+            .read<CompradorDireccionBloc>()
+            .add(EventBotonObtenerDireccion(idUsuario: idComprador));
+      }
+      return respose;
+    } catch (e) {
+      return false;
+    }
   }
 }

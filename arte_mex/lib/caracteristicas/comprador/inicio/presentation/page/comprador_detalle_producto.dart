@@ -1,10 +1,18 @@
+import 'package:arte_mex/caracteristicas/comerciante/producto/domian/entities/obtener_producto.dart';
 import 'package:arte_mex/caracteristicas/comprador/inicio/presentation/page/widgets/comprador_card_detalle_producto.dart';
+import 'package:arte_mex/caracteristicas/inicio_sesion/domain/entities/comprador.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../../../../utilidad/obtener_perfil_usuario.dart';
+import '../../../carrito/presentation/bloc/comprador_carrito_bloc.dart';
+import '../../../carrito/presentation/pages/comprador_carro_compra_page.dart';
+
 class CompradorDetalleProducto extends StatefulWidget {
-  const CompradorDetalleProducto({super.key});
+  final ObtenerProducto producto;
+  const CompradorDetalleProducto({super.key, required this.producto});
 
   @override
   State<CompradorDetalleProducto> createState() =>
@@ -13,9 +21,17 @@ class CompradorDetalleProducto extends StatefulWidget {
 
 class _CompradorDetalleProductoState extends State<CompradorDetalleProducto> {
   @override
+  void initState() {
+    obtenerPerfil(context);
+    super.initState();
+  }
+
+  Comprador? comprador;
+  @override
   Widget build(BuildContext context) {
     final ancho = MediaQuery.of(context).size.width;
     final alto = MediaQuery.of(context).size.height;
+    final ObtenerProducto producto = widget.producto;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.purple,
@@ -138,36 +154,81 @@ class _CompradorDetalleProductoState extends State<CompradorDetalleProducto> {
                           ),
                         ],
                       ),
-                      SizedBox(
-                        width: ancho / 7.5,
-                        height: alto,
-                        child: Stack(
-                          alignment: AlignmentDirectional.center,
-                          children: [
-                            Positioned(
-                              left: 20.5,
-                              top: 14,
-                              child: Text(
-                                '0',
-                                style: GoogleFonts.nunito(
-                                  fontWeight: FontWeight.w900,
-                                  color: Colors.white,
-                                  fontSize: 9,
+                      InkWell(
+                        onTap: () {
+                          Route route = MaterialPageRoute(
+                            builder: (context) =>
+                                const CompradorCarroCompraPage(),
+                          );
+                          Navigator.push(context, route);
+                        },
+                        child: SizedBox(
+                          width: ancho / 7.5,
+                          height: alto,
+                          child: Stack(
+                            alignment: AlignmentDirectional.center,
+                            children: [
+                              Positioned(
+                                left: 20.5,
+                                top: 14,
+                                child: BlocBuilder<CompradorCarritoBloc,
+                                    CompradorCarritoState>(
+                                  builder: (context, state) {
+                                    if (state
+                                        is CompradorObteniendoCarritoState) {
+                                      return Text(
+                                        '0',
+                                        style: GoogleFonts.nunito(
+                                          fontWeight: FontWeight.w900,
+                                          color: Colors.white,
+                                          fontSize: 9,
+                                        ),
+                                      );
+                                    } else if (state
+                                        is CompradorCarritoObtenidoState) {
+                                      return Text(
+                                        state.carro.length.toString(),
+                                        style: GoogleFonts.nunito(
+                                          fontWeight: FontWeight.w900,
+                                          color: Colors.white,
+                                          fontSize: 9,
+                                        ),
+                                      );
+                                    } else if (state is CompradorCarritoError) {
+                                      return Text(
+                                        '0',
+                                        style: GoogleFonts.nunito(
+                                          fontWeight: FontWeight.w900,
+                                          color: Colors.white,
+                                          fontSize: 9,
+                                        ),
+                                      );
+                                    } else {
+                                      return Text(
+                                        '0',
+                                        style: GoogleFonts.nunito(
+                                          fontWeight: FontWeight.w900,
+                                          color: Colors.white,
+                                          fontSize: 9,
+                                        ),
+                                      );
+                                    }
+                                  },
                                 ),
                               ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(top: 15),
-                              child: SvgPicture.asset(
-                                'assets/imagenes_iconos_comerciante/carrito.svg',
-                                width: 25,
-                                colorFilter: const ColorFilter.mode(
-                                  Colors.white,
-                                  BlendMode.srcIn,
+                              Padding(
+                                padding: const EdgeInsets.only(top: 15),
+                                child: SvgPicture.asset(
+                                  'assets/imagenes_iconos_comerciante/carrito.svg',
+                                  width: 25,
+                                  colorFilter: const ColorFilter.mode(
+                                    Colors.white,
+                                    BlendMode.srcIn,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ],
@@ -194,7 +255,7 @@ class _CompradorDetalleProductoState extends State<CompradorDetalleProducto> {
                     text: TextSpan(
                       children: <TextSpan>[
                         TextSpan(
-                          text: "Artesanias Mx\n",
+                          text: "${producto.nombreEmpresa}\n",
                           style: GoogleFonts.montserrat(
                             fontWeight: FontWeight.bold,
                             fontSize: 24,
@@ -202,7 +263,7 @@ class _CompradorDetalleProductoState extends State<CompradorDetalleProducto> {
                           ),
                         ),
                         TextSpan(
-                          text: "Licor artesanal",
+                          text: producto.nombreProducto,
                           style: GoogleFonts.montserrat(
                             fontWeight: FontWeight.w500,
                             fontSize: 17,
@@ -226,16 +287,35 @@ class _CompradorDetalleProductoState extends State<CompradorDetalleProducto> {
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: SizedBox(
-                width: ancho,
-                height: alto / 1.3,
-                child: CompradorCardDetalleProducto(
-                    ancho: ancho, alto: alto, cantidadProducto: 2),
-              ),
+              child: (comprador != null)
+                  ? SizedBox(
+                      width: ancho,
+                      height: alto / 1.3,
+                      child: CompradorCardDetalleProducto(
+                        ancho: ancho,
+                        alto: alto,
+                        producto: producto,
+                        idUsuario: comprador!.idComprador,
+                      ),
+                    )
+                  : const Center(),
             )
           ],
         ),
       ),
     );
+  }
+
+  void obtenerPerfil(BuildContext context) async {
+    Object response = await obtenerPerfilUsuario(context);
+    if (response is Comprador) {
+      setState(() {
+        comprador = response;
+      });
+    }
+    // ignore: use_build_context_synchronously
+    context
+        .read<CompradorCarritoBloc>()
+        .add(EventBotonObtenerCarro(idUsuario: comprador!.idComprador));
   }
 }

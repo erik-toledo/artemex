@@ -1,6 +1,10 @@
+import 'package:arte_mex/caracteristicas/inicio_sesion/domain/entities/comerciante.dart';
 import 'package:arte_mex/widgets_reutilizables/reutilizable_widget_appbar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+
+import '../../../../inicio_sesion/presentation/bloc/inicio_sesion_bloc.dart';
 
 class ComercianteVerificacionPage extends StatefulWidget {
   const ComercianteVerificacionPage({super.key});
@@ -13,6 +17,17 @@ class ComercianteVerificacionPage extends StatefulWidget {
 class _ComercianteVerificacionPageState
     extends State<ComercianteVerificacionPage> {
   final nombreEmpresaController = TextEditingController();
+  final estadoController = TextEditingController();
+  final telefonoController = TextEditingController();
+  final rfcController = TextEditingController();
+  Comerciante? comerciante;
+
+  @override
+  void initState() {
+    extraerDatos();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     final ancho = MediaQuery.of(context).size.width;
@@ -64,11 +79,13 @@ class _ComercianteVerificacionPageState
                           padding: const EdgeInsets.only(left: 29),
                           child: TextField(
                             textAlign: TextAlign.left,
+                            enabled: false,
                             controller: nombreEmpresaController,
                             decoration: InputDecoration(
                                 contentPadding:
                                     const EdgeInsets.only(bottom: 7),
                                 enabledBorder: InputBorder.none,
+                                border: InputBorder.none,
                                 focusedBorder: InputBorder.none,
                                 hintText: 'Artesanias Mx',
                                 hintStyle: GoogleFonts.roboto(
@@ -107,11 +124,13 @@ class _ComercianteVerificacionPageState
                         child: Padding(
                           padding: const EdgeInsets.only(left: 29),
                           child: TextField(
+                            enabled: false,
                             textAlign: TextAlign.left,
-                            controller: nombreEmpresaController,
+                            controller: estadoController,
                             decoration: InputDecoration(
                                 contentPadding:
                                     const EdgeInsets.only(bottom: 7),
+                                border: InputBorder.none,
                                 enabledBorder: InputBorder.none,
                                 focusedBorder: InputBorder.none,
                                 hintText: 'Chiapas',
@@ -151,11 +170,13 @@ class _ComercianteVerificacionPageState
                         child: Padding(
                           padding: const EdgeInsets.only(left: 29),
                           child: TextField(
+                            enabled: false,
                             textAlign: TextAlign.left,
-                            controller: nombreEmpresaController,
+                            controller: telefonoController,
                             decoration: InputDecoration(
                                 contentPadding:
                                     const EdgeInsets.only(bottom: 7),
+                                border: InputBorder.none,
                                 enabledBorder: InputBorder.none,
                                 focusedBorder: InputBorder.none,
                                 hintText: 'Número telefonico',
@@ -195,10 +216,12 @@ class _ComercianteVerificacionPageState
                         child: Padding(
                           padding: const EdgeInsets.only(left: 29),
                           child: TextField(
+                            enabled: false,
                             textAlign: TextAlign.left,
-                            controller: nombreEmpresaController,
+                            controller: rfcController,
                             decoration: InputDecoration(
                               contentPadding: const EdgeInsets.only(bottom: 7),
+                              border: InputBorder.none,
                               enabledBorder: InputBorder.none,
                               focusedBorder: InputBorder.none,
                               hintText: 'RDL0904102F4',
@@ -216,23 +239,14 @@ class _ComercianteVerificacionPageState
                 ),
                 SizedBox(height: alto / 8.5),
                 SizedBox(
-                  width: ancho / 1.4,
+                  width: ancho / 1.3,
                   height: alto / 12,
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      elevation: 0,
-                      backgroundColor: const Color(0xFF617946),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                    child: Text(
-                      'Solicitar',
-                      style: GoogleFonts.roboto(
-                          fontWeight: FontWeight.w500,
-                          fontSize: 14,
-                          color: Colors.white),
+                  child: Text(
+                    "VERIFICADO",
+                    style: GoogleFonts.montserrat(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                      color: const Color(0xff1D9BF0),
                     ),
                   ),
                 ),
@@ -242,5 +256,19 @@ class _ComercianteVerificacionPageState
         ]),
       ),
     );
+  }
+
+  void extraerDatos() async {
+    Object response =
+        await context.read<InicioSesionBloc>().obtenerInformacionUsuario();
+    if (response is Comerciante) {
+      setState(() {
+        comerciante = response;
+        nombreEmpresaController.text = comerciante!.nombreEmpresa;
+        estadoController.text = comerciante!.estado;
+        telefonoController.text = comerciante!.numeroTelefonico;
+        rfcController.text = comerciante!.rfc;
+      });
+    }
   }
 }

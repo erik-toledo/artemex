@@ -7,7 +7,7 @@ class CrearProductoUsecase {
 
   CrearProductoUsecase({required this.productoRepository});
 
-  Future<void> execute(Producto producto) async {
+  Future<bool> execute(Producto producto) async {
     return await productoRepository.crearProductoRepository(producto);
   }
 }
